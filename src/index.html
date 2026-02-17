@@ -1959,10 +1959,8 @@
   // Window control variables
   let isMaximized = false;
   let isDragging = false;
-  let dragStartX = 0;
-  let dragStartY = 0;
-  let windowStartX = 0;
-  let windowStartY = 0;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
 
   const defaultCategories = {
     salary:    { icon:'💼', label:'حقوق',      color:'#6c5ce7', type:'income', isDefault:true },
@@ -1984,8 +1982,8 @@
 
   const colors = ['#6c5ce7','#a29bfe','#fd79a8','#e55039','#f9ca24','#e056a0','#00b894','#55efc4','#e17055','#0984e3','#74b9ff','#636e72','#b2bec3','#2d3436','#ff7675','#fab1a0','#ffeaa7','#dfe6e9','#00cec9','#81ecec','#fdcb6e','#d63031','#ff6b6b','#ee5a6f','#c44569','#f368e0','#ff9ff3','#54a0ff','#48dbfb','#0abde3','#00d2d3','#1dd1a1','#10ac84','#576574','#222f3e','#f8b500','#ff6348'];
 
-  // ============ WINDOW CONTROLS ============
- function setupWindowControls() {
+  // ============ WINDOW CONTROLS - FIXED ============
+  function setupWindowControls() {
     const windowFrame = document.getElementById('windowFrame');
     const titlebar = document.getElementById('titlebar');
     const closeBtn = document.getElementById('closeBtn');
@@ -1995,11 +1993,10 @@
     // Close button
     closeBtn.addEventListener('click', () => {
       if (confirm('آیا می‌خواهید برنامه را ببندید؟')) {
-        windowFrame.style.transform = 'translate(-50%, -50%) scale(0.8)';
         windowFrame.style.opacity = '0';
+        windowFrame.style.transform = 'translate(-50%, -50%) scale(0.8)';
         setTimeout(() => {
           window.close();
-          // For demo purposes, just hide it
           windowFrame.style.display = 'none';
         }, 300);
       }
@@ -2017,31 +2014,7 @@
 
     // Maximize button
     maximizeBtn.addEventListener('click', () => {
-      isMaximized = !isMaximized;
-      
-      if (isMaximized) {
-        // Store current position before maximizing
-        windowFrame.dataset.prevLeft = windowFrame.style.left || '';
-        windowFrame.dataset.prevTop = windowFrame.style.top || '';
-        windowFrame.dataset.prevTransform = windowFrame.style.transform || '';
-        
-        windowFrame.classList.add('maximized');
-      } else {
-        // Restore previous position
-        windowFrame.classList.remove('maximized');
-        
-        setTimeout(() => {
-          if (windowFrame.dataset.prevLeft) {
-            windowFrame.style.left = windowFrame.dataset.prevLeft;
-            windowFrame.style.top = windowFrame.dataset.prevTop;
-            windowFrame.style.transform = windowFrame.dataset.prevTransform;
-          } else {
-            windowFrame.style.left = '50%';
-            windowFrame.style.top = '50%';
-            windowFrame.style.transform = 'translate(-50%, -50%)';
-          }
-        }, 50);
-      }
+      toggleMaximize();
     });
 
     // Drag functionality
@@ -2051,56 +2024,86 @@
 
     // Double click to maximize
     titlebar.addEventListener('dblclick', () => {
-      maximizeBtn.click();
+      toggleMaximize();
     });
   }
 
- function startDragging(e) {
+  function toggleMaximize() {
+    const windowFrame = document.getElementById('windowFrame');
+    isMaximized = !isMaximized;
+    
+    if (isMaximized) {
+      // Save current position
+      windowFrame.dataset.prevLeft = windowFrame.style.left || '50%';
+      windowFrame.dataset.prevTop = windowFrame.style.top || '50%';
+      windowFrame.dataset.prevTransform = windowFrame.style.transform || 'translate(-50%, -50%)';
+      
+      // Maximize
+      windowFrame.classList.add('maximized');
+    } else {
+      // Restore
+      windowFrame.classList.remove('maximized');
+      
+      // Restore position after animation
+      setTimeout(() => {
+        windowFrame.style.left = windowFrame.dataset.prevLeft;
+        windowFrame.style.top = windowFrame.dataset.prevTop;
+        windowFrame.style.transform = windowFrame.dataset.prevTransform;
+      }, 50);
+    }
+  }
+
+  function startDragging(e) {
+    // Don't drag if maximized or clicking on buttons
     if (isMaximized) return;
     if (e.target.closest('.dot') || e.target.closest('.titlebar-actions')) return;
     
     isDragging = true;
     const windowFrame = document.getElementById('windowFrame');
-    
-    // Get current position
-    const style = window.getComputedStyle(windowFrame);
-    const matrix = new DOMMatrix(style.transform);
-    
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    
-    // Calculate current position considering transform
     const rect = windowFrame.getBoundingClientRect();
-    windowStartX = rect.left;
-    windowStartY = rect.top;
     
+    // Calculate offset from mouse to window top-left
+    dragOffsetX = e.clientX - rect.left;
+    dragOffsetY = e.clientY - rect.top;
+    
+    // Remove transform and prepare for absolute positioning
     windowFrame.style.transition = 'none';
+    windowFrame.style.transform = 'none';
+    windowFrame.style.left = rect.left + 'px';
+    windowFrame.style.top = rect.top + 'px';
+    
     document.body.style.cursor = 'grabbing';
+    document.body.style.userSelect = 'none';
   }
 
   function drag(e) {
     if (!isDragging) return;
     
     const windowFrame = document.getElementById('windowFrame');
-    const deltaX = e.clientX - dragStartX;
-    const deltaY = e.clientY - dragStartY;
     
-    const newX = windowStartX + deltaX;
-    const newY = windowStartY + deltaY;
+    // Calculate new position
+    let newX = e.clientX - dragOffsetX;
+    let newY = e.clientY - dragOffsetY;
     
-    // Remove transform and use direct positioning
-    windowFrame.style.transform = 'none';
+    // Optional: Keep window within viewport bounds
+    const maxX = window.innerWidth - windowFrame.offsetWidth;
+    const maxY = window.innerHeight - windowFrame.offsetHeight;
+    
+    newX = Math.max(0, Math.min(newX, maxX));
+    newY = Math.max(0, Math.min(newY, maxY));
+    
     windowFrame.style.left = newX + 'px';
     windowFrame.style.top = newY + 'px';
   }
 
   function stopDragging() {
-    if (isDragging) {
-      const windowFrame = document.getElementById('windowFrame');
-      windowFrame.style.transition = '';
-      document.body.style.cursor = '';
-      isDragging = false;
-    }
+    if (!isDragging) return;
+    
+    isDragging = false;
+    const windowFrame = document.getElementById('windowFrame');
+    windowFrame.style.transition = '';
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
   }
 
   // ============ HELPERS ============
@@ -2145,7 +2148,6 @@
       .filter(([_, cat]) => cat.type === type || cat.type === 'both')
       .map(([key, cat]) => ({ key, ...cat }));
   }
-
   // ============ LOAD/SAVE ============
   function loadData() {
     try {
