@@ -1,0 +1,32 @@
+{
+  "name": "poolyar",
+  "version": "2.5.0",
+  "description": "پول‌یار — مدیریت مالی شخصی",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "author": "Poolyar Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.poolyar.app",
+    "productName": "Poolyar",
+    "directories": {"output": "dist"},
+    "files": ["main.js", "preload.js", "src/**/*"],
+    "win": {
+      "target": [{"target": "nsis", "arch": ["x64"]}, {"target": "portable", "arch": ["x64"]}],
+      "artifactName": "${productName}-${version}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "portable": {"artifactName": "${productName}-${version}-Portable.${ext}"}
+  }
+}
