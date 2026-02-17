@@ -1,21 +1,30 @@
-name: Build Electron App
+name: Build Poolyar
+
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: windows-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - run: npm install
-      - run: npm run build
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Poolyar-Windows
-          path: dist/*.exe
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Install Dependencies
+      run: npm install
+    
+    - name: Build Portable EXE
+      run: npx electron-builder --win portable
+    
+    - name: Upload Portable EXE
+      uses: actions/upload-artifact@v4
+      with:
+        name: Poolyar-Portable
+        path: dist/*.exe
