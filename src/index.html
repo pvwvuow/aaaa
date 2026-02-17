@@ -64,16 +64,14 @@
     --border: rgba(255, 255, 255, 0.06);
   }
 
-  body {
+ body {
     font-family: 'Vazirmatn', Tahoma, sans-serif;
     background: var(--bg-solid);
     color: var(--text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     min-height: 100vh;
     overflow: hidden;
     transition: background 0.3s;
+    position: relative;
   }
 
   body::before {
@@ -94,8 +92,11 @@
       radial-gradient(ellipse at 80% 80%, rgba(0,206,201,0.08) 0%, transparent 50%);
   }
 
-  .window-frame {
-    position: relative;
+ .window-frame {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 1;
     width: 1100px;
     height: 650px;
@@ -116,14 +117,17 @@
   }
 
   .window-frame.minimized {
-    transform: scale(0.1);
+    transform: translate(-50%, -50%) scale(0.1);
     opacity: 0;
     pointer-events: none;
   }
 
   .window-frame.maximized {
-    width: 100vw;
-    height: 100vh;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
     max-width: 100vw;
     max-height: 100vh;
     border-radius: 0;
@@ -1318,7 +1322,7 @@
       <button class="dot minimize" id="minimizeBtn" title="کوچک کردن"></button>
       <button class="dot maximize" id="maximizeBtn" title="بزرگ کردن"></button>
     </div>
-    <div class="titlebar-title">💰 پول‌یار v2.5 — مدیریت مالی هوشمند</div>
+    <div class="titlebar-title">💰 پول‌یار v3.0 — مدیریت مالی هوشمند</div>
     <div class="titlebar-actions">
       <button class="quick-access-btn" onclick="openCalculator()" title="ماشین حساب">🔢</button>
       <button class="quick-access-btn" onclick="openDebtModal()" title="بدهی/طلب">📝</button>
@@ -1981,7 +1985,7 @@
   const colors = ['#6c5ce7','#a29bfe','#fd79a8','#e55039','#f9ca24','#e056a0','#00b894','#55efc4','#e17055','#0984e3','#74b9ff','#636e72','#b2bec3','#2d3436','#ff7675','#fab1a0','#ffeaa7','#dfe6e9','#00cec9','#81ecec','#fdcb6e','#d63031','#ff6b6b','#ee5a6f','#c44569','#f368e0','#ff9ff3','#54a0ff','#48dbfb','#0abde3','#00d2d3','#1dd1a1','#10ac84','#576574','#222f3e','#f8b500','#ff6348'];
 
   // ============ WINDOW CONTROLS ============
-  function setupWindowControls() {
+ function setupWindowControls() {
     const windowFrame = document.getElementById('windowFrame');
     const titlebar = document.getElementById('titlebar');
     const closeBtn = document.getElementById('closeBtn');
@@ -1991,7 +1995,7 @@
     // Close button
     closeBtn.addEventListener('click', () => {
       if (confirm('آیا می‌خواهید برنامه را ببندید؟')) {
-        windowFrame.style.transform = 'scale(0.8)';
+        windowFrame.style.transform = 'translate(-50%, -50%) scale(0.8)';
         windowFrame.style.opacity = '0';
         setTimeout(() => {
           window.close();
@@ -2014,10 +2018,29 @@
     // Maximize button
     maximizeBtn.addEventListener('click', () => {
       isMaximized = !isMaximized;
+      
       if (isMaximized) {
+        // Store current position before maximizing
+        windowFrame.dataset.prevLeft = windowFrame.style.left || '';
+        windowFrame.dataset.prevTop = windowFrame.style.top || '';
+        windowFrame.dataset.prevTransform = windowFrame.style.transform || '';
+        
         windowFrame.classList.add('maximized');
       } else {
+        // Restore previous position
         windowFrame.classList.remove('maximized');
+        
+        setTimeout(() => {
+          if (windowFrame.dataset.prevLeft) {
+            windowFrame.style.left = windowFrame.dataset.prevLeft;
+            windowFrame.style.top = windowFrame.dataset.prevTop;
+            windowFrame.style.transform = windowFrame.dataset.prevTransform;
+          } else {
+            windowFrame.style.left = '50%';
+            windowFrame.style.top = '50%';
+            windowFrame.style.transform = 'translate(-50%, -50%)';
+          }
+        }, 50);
       }
     });
 
@@ -2032,20 +2055,27 @@
     });
   }
 
-  function startDragging(e) {
+ function startDragging(e) {
     if (isMaximized) return;
     if (e.target.closest('.dot') || e.target.closest('.titlebar-actions')) return;
     
     isDragging = true;
     const windowFrame = document.getElementById('windowFrame');
-    const rect = windowFrame.getBoundingClientRect();
+    
+    // Get current position
+    const style = window.getComputedStyle(windowFrame);
+    const matrix = new DOMMatrix(style.transform);
     
     dragStartX = e.clientX;
     dragStartY = e.clientY;
+    
+    // Calculate current position considering transform
+    const rect = windowFrame.getBoundingClientRect();
     windowStartX = rect.left;
     windowStartY = rect.top;
     
     windowFrame.style.transition = 'none';
+    document.body.style.cursor = 'grabbing';
   }
 
   function drag(e) {
@@ -2055,15 +2085,20 @@
     const deltaX = e.clientX - dragStartX;
     const deltaY = e.clientY - dragStartY;
     
-    windowFrame.style.left = (windowStartX + deltaX) + 'px';
-    windowFrame.style.top = (windowStartY + deltaY) + 'px';
+    const newX = windowStartX + deltaX;
+    const newY = windowStartY + deltaY;
+    
+    // Remove transform and use direct positioning
     windowFrame.style.transform = 'none';
+    windowFrame.style.left = newX + 'px';
+    windowFrame.style.top = newY + 'px';
   }
 
   function stopDragging() {
     if (isDragging) {
       const windowFrame = document.getElementById('windowFrame');
       windowFrame.style.transition = '';
+      document.body.style.cursor = '';
       isDragging = false;
     }
   }
