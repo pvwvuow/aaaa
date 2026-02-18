@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline';">
 <title>پول‌یار — مدیریت مالی شخصی</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
@@ -64,14 +65,17 @@
     --border: rgba(255, 255, 255, 0.06);
   }
 
- body {
+  body {
     font-family: 'Vazirmatn', Tahoma, sans-serif;
     background: var(--bg-solid);
     color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     min-height: 100vh;
     overflow: hidden;
     transition: background 0.3s;
-    position: relative;
+    user-select: none;
   }
 
   body::before {
@@ -92,11 +96,8 @@
       radial-gradient(ellipse at 80% 80%, rgba(0,206,201,0.08) 0%, transparent 50%);
   }
 
- .window-frame {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  .window-frame {
+    position: relative;
     z-index: 1;
     width: 1100px;
     height: 650px;
@@ -113,24 +114,6 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .window-frame.minimized {
-    transform: translate(-50%, -50%) scale(0.1);
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .window-frame.maximized {
-    top: 0 !important;
-    left: 0 !important;
-    transform: none !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    max-width: 100vw;
-    max-height: 100vh;
-    border-radius: 0;
   }
 
   .titlebar {
@@ -142,13 +125,13 @@
     background: var(--glass2);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
-    cursor: move;
-    user-select: none;
+    -webkit-app-region: drag;
   }
 
   .titlebar-dots {
     display: flex;
     gap: 7px;
+    -webkit-app-region: no-drag;
   }
 
   .dot {
@@ -159,61 +142,27 @@
     transition: all 0.15s;
     border: none;
     padding: 0;
-    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: transparent;
   }
 
   .dot:hover { 
-    opacity: 0.8;
-    transform: scale(1.1);
+    color: rgba(0,0,0,0.5);
   }
   
   .dot:active {
-    transform: scale(0.95);
-  }
-
-  .dot.close { 
-    background: #ff5f57;
+    transform: scale(0.9);
   }
   
-  .dot.close:hover::after {
-    content: '×';
-    position: absolute;
-    color: #8b0000;
-    font-size: 14px;
-    font-weight: bold;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .dot.minimize { 
-    background: #ffbd2e;
-  }
-  
-  .dot.minimize:hover::after {
-    content: '−';
-    position: absolute;
-    color: #8b6914;
-    font-size: 14px;
-    font-weight: bold;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .dot.maximize { 
-    background: #28c840;
-  }
-  
-  .dot.maximize:hover::after {
-    content: '⤢';
-    position: absolute;
-    color: #0f5c1c;
-    font-size: 10px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
+  .dot.close { background: #ff5f57; }
+  .dot.close:hover { background: #ff3b30; }
+  .dot.minimize { background: #ffbd2e; }
+  .dot.minimize:hover { background: #ff9500; }
+  .dot.maximize { background: #28c840; }
+  .dot.maximize:hover { background: #34c759; }
 
   .titlebar-title {
     font-size: 12px;
@@ -228,6 +177,7 @@
   .titlebar-actions {
     display: flex;
     gap: 8px;
+    -webkit-app-region: no-drag;
   }
 
   .theme-toggle {
@@ -673,7 +623,7 @@
     backdrop-filter: blur(30px);
     border-radius: 18px;
     padding: 24px;
-    width: 380px;
+    width: 420px;
     max-width: 90vw;
     border: 1px solid var(--glass-border);
     transform: translateY(20px) scale(0.97);
@@ -1023,129 +973,164 @@
     transition: width 0.5s;
   }
 
-  /* Calculator Styles - Enhanced */
-  .calculator {
-    background: var(--glass2);
-    border-radius: 12px;
-    padding: 16px;
-    max-width: 320px;
-  }
+ /* Professional Calculator Styles */
+.calculator {
+  background: var(--glass2);
+  border-radius: 16px;
+  padding: 16px;
+  width: 100%;
+}
 
-  .calc-display {
-    background: var(--glass);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px 12px;
-    margin-bottom: 8px;
-    text-align: left;
-    direction: ltr;
-    min-height: 70px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    word-break: break-all;
-  }
+.calc-history {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  min-height: 28px;
+  font-size: 12px;
+  color: var(--text3);
+  text-align: left;
+  direction: ltr;
+  overflow-x: auto;
+  white-space: nowrap;
+}
 
-  .calc-history {
-    font-size: 12px;
-    color: var(--text3);
-    margin-bottom: 4px;
-    min-height: 16px;
-  }
+.calc-display {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+  text-align: left;
+  direction: ltr;
+  font-size: 26px;
+  font-weight: 700;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  word-break: break-all;
+  overflow: hidden;
+}
 
-  .calc-current {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text);
-  }
+.calc-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
 
-  .calc-memory {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 8px;
-    font-size: 10px;
-    color: var(--text3);
-  }
+.calc-btn {
+  padding: 14px 8px;
+  border: none;
+  border-radius: 10px;
+  background: var(--glass);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .calc-memory-indicator {
-    padding: 2px 6px;
-    background: var(--accent-glass);
-    border-radius: 4px;
-    color: var(--accent);
-  }
+.calc-btn:hover { 
+  background: var(--glass2); 
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px var(--glass-shadow);
+}
 
-  .calc-buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
+.calc-btn:active { 
+  transform: scale(0.95); 
+}
 
-  .calc-btn {
-    padding: 16px;
-    border: none;
-    border-radius: 10px;
-    background: var(--glass);
-    color: var(--text);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-    border: 1px solid var(--border);
-  }
+.calc-btn.number {
+  background: var(--bg-solid);
+  font-size: 17px;
+}
 
-  .calc-btn:hover { 
-    background: var(--glass2); 
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--glass-shadow);
-  }
-  
-  .calc-btn:active { 
-    transform: scale(0.95); 
-  }
+.calc-btn.operator { 
+  background: var(--accent); 
+  color: #fff; 
+  border-color: var(--accent);
+  font-size: 18px;
+}
 
-  .calc-btn.operator { 
-    background: var(--accent); 
-    color: #fff; 
-    border-color: var(--accent);
-  }
+.calc-btn.operator:hover {
+  background: var(--accent2);
+}
 
-  .calc-btn.function { 
-    background: var(--blue-bg); 
-    color: var(--blue); 
-    font-size: 13px;
-  }
+.calc-btn.equals { 
+  background: var(--green); 
+  color: #fff; 
+  border-color: var(--green);
+  font-size: 20px;
+}
 
-  .calc-btn.memory { 
-    background: var(--orange-bg); 
-    color: var(--orange); 
-    font-size: 13px;
-  }
+.calc-btn.equals:hover {
+  background: #00a884;
+}
 
-  .calc-btn.equals { 
-    background: var(--green); 
-    color: #fff; 
-    grid-column: span 2; 
-    border-color: var(--green);
-  }
+.calc-btn.clear { 
+  background: var(--red); 
+  color: #fff; 
+  border-color: var(--red);
+}
 
-  .calc-btn.clear { 
-    background: var(--red); 
-    color: #fff; 
-    border-color: var(--red);
-  }
+.calc-btn.clear:hover {
+  background: #d63031;
+}
 
-  .calc-btn.zero { 
-    grid-column: span 2; 
-  }
+.calc-btn.function {
+  background: var(--glass2);
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.calc-btn.function:hover {
+  background: var(--accent-glass);
+}
+
+.calc-memory-btns {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.calc-memory-btn {
+  flex: 1;
+  padding: 6px 4px;
+  border: none;
+  border-radius: 6px;
+  background: var(--glass);
+  color: var(--text3);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.calc-memory-btn:hover {
+  background: var(--accent-glass);
+  color: var(--accent);
+}
+
+.calc-memory-btn.has-memory {
+  color: var(--accent);
+  background: var(--accent-glass);
+}
 
   /* Debt/Credit Styles */
   .debt-item {
     background: var(--glass2);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 8px;
+    padding: 14px;
+    margin-bottom: 10px;
     transition: all 0.2s;
   }
 
@@ -1171,70 +1156,77 @@
   }
 
   .debt-info { flex: 1; margin: 0 10px; }
-  .debt-title { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
-  .debt-person { font-size: 10px; color: var(--text2); }
-  .debt-amount { font-size: 13px; font-weight: 700; direction: ltr; text-align: right; }
+  .debt-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .debt-person { font-size: 11px; color: var(--text2); }
+  .debt-amount { font-size: 14px; font-weight: 700; direction: ltr; text-align: right; }
   .debt-amount.debt { color: var(--red); }
   .debt-amount.credit { color: var(--green); }
-  .debt-date { font-size: 9px; color: var(--text3); margin-top: 4px; }
+  .debt-date { font-size: 10px; color: var(--text3); margin-top: 4px; }
 
   .debt-actions {
     display: flex;
     gap: 4px;
   }
 
-  .debt-compact {
-    background: var(--glass2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 10px;
+  /* Quick Debt Card for Dashboard */
+  .quick-debt-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 6px;
+    padding: 10px 12px;
+    background: var(--glass2);
+    border-radius: 10px;
+    margin-bottom: 8px;
     transition: all 0.2s;
     cursor: pointer;
   }
 
-  .debt-compact:hover {
+  .quick-debt-item:hover {
     background: var(--glass);
-    transform: translateX(-2px);
+    transform: translateX(-4px);
   }
 
-  .debt-compact-left {
+  .quick-debt-item.debt-type {
+    border-right: 3px solid var(--red);
+  }
+
+  .quick-debt-item.credit-type {
+    border-right: 3px solid var(--green);
+  }
+
+  .quick-debt-info {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
 
-  .debt-compact-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 7px;
+  .quick-debt-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 14px;
   }
 
-  .debt-compact-info {
+  .quick-debt-details {
     display: flex;
     flex-direction: column;
   }
 
-  .debt-compact-title {
-    font-size: 11px;
+  .quick-debt-title {
+    font-size: 12px;
     font-weight: 600;
-    margin-bottom: 2px;
   }
 
-  .debt-compact-person {
-    font-size: 9px;
+  .quick-debt-person {
+    font-size: 10px;
     color: var(--text3);
   }
 
-  .debt-compact-amount {
-    font-size: 11px;
+  .quick-debt-amount {
+    font-size: 13px;
     font-weight: 700;
     direction: ltr;
   }
@@ -1304,6 +1296,56 @@
     border-color: var(--green);
   }
 
+  /* Custom Budget Modal Styles */
+  .budget-type-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .budget-type-item {
+    padding: 12px;
+    background: var(--glass2);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .budget-type-item:hover {
+    background: var(--glass);
+  }
+
+  .budget-type-item.active {
+    border-color: var(--accent);
+    background: var(--accent-glass);
+  }
+
+  .budget-type-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  .budget-type-label {
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  .alert-threshold-slider {
+    width: 100%;
+    margin: 8px 0;
+    accent-color: var(--accent);
+  }
+
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text3);
+  }
+
   @media (max-width: 900px) {
     .window-frame { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; border-radius: 0; }
     .stats { grid-template-columns: repeat(2, 1fr); }
@@ -1315,12 +1357,12 @@
 </head>
 <body>
 
-<div class="window-frame" id="windowFrame">
-  <div class="titlebar" id="titlebar">
+<div class="window-frame">
+  <div class="titlebar">
     <div class="titlebar-dots">
-      <button class="dot close" id="closeBtn" title="بستن"></button>
-      <button class="dot minimize" id="minimizeBtn" title="کوچک کردن"></button>
-      <button class="dot maximize" id="maximizeBtn" title="بزرگ کردن"></button>
+      <button class="dot close" id="closeBtn" title="بستن">×</button>
+      <button class="dot minimize" id="minimizeBtn" title="کوچک">−</button>
+      <button class="dot maximize" id="maximizeBtn" title="بزرگ">□</button>
     </div>
     <div class="titlebar-title">💰 پول‌یار v3.0 — مدیریت مالی هوشمند</div>
     <div class="titlebar-actions">
@@ -1424,13 +1466,13 @@
             <div class="tx-list" id="recentTx"></div>
           </div>
           
-          <!-- بدهی‌ها و طلب‌ها به جای نمودار -->
+          <!-- Changed: Debts/Credits Quick View instead of Area Chart -->
           <div class="card">
             <div class="card-title">
-              <span>بدهی‌ها و طلب‌ها</span>
-              <button class="btn btn-outline btn-sm" onclick="switchPage('debts',document.querySelectorAll('.nav-item')[2])">مشاهده همه</button>
+              <span>📝 بدهی‌ها و طلب‌ها</span>
+              <button class="btn btn-outline btn-sm" onclick="switchPage('debts',document.querySelectorAll('.nav-item')[2])">مدیریت</button>
             </div>
-            <div id="dashboardDebts" style="max-height:220px;overflow-y:auto;"></div>
+            <div id="quickDebts" style="max-height:220px;overflow-y:auto;"></div>
           </div>
         </div>
       </div>
@@ -1553,7 +1595,7 @@
 
           <div class="card">
             <div class="card-title">نسبت پس‌انداز</div>
-                <div style="display:flex;align-items:center;justify-content:center;gap:24px;padding:10px 0;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:24px;padding:10px 0;">
               <div class="progress-ring">
                 <svg width="110" height="110" viewBox="0 0 110 110">
                   <circle cx="55" cy="55" r="45" stroke="var(--glass2)" stroke-width="9" fill="none"/>
@@ -1625,7 +1667,7 @@
           </div>
         </div>
 
-        <div id="budgetCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;"></div>
+        <div id="budgetCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
       </div>
 
       <!-- ========== CATEGORIES ========== -->
@@ -1692,7 +1734,7 @@
               <button class="btn btn-red" onclick="clearAllData()" style="width:100%;justify-content:center;">🗑️ پاک کردن همه داده‌ها</button>
             </div>
             <div style="text-align:center;color:var(--text3);font-size:10px;padding-top:8px;">
-              پول‌یار v2.5 — ساخته شده با ❤️<br>
+              پول‌یار v3.0 — ساخته شده با ❤️<br>
               ذخیره‌سازی محلی فعال ✅ | آفلاین 🔒
             </div>
           </div>
@@ -1748,7 +1790,7 @@
     <h2 id="debtModalTitle">📝 ثبت بدهی/طلب جدید</h2>
     <div class="form-group">
       <div class="type-toggle">
-        <button class="type-btn active" id="debtTypeDebt" onclick="setDebtType('debt')" style="background:var(--orange);color:#fff;">📤 بدهی</button>
+        <button class="type-btn" id="debtTypeDebt" onclick="setDebtType('debt')" style="background:var(--orange);color:#fff;">📤 بدهی</button>
         <button class="type-btn" id="debtTypeCredit" onclick="setDebtType('credit')" style="background:var(--blue);color:#fff;">📥 طلب</button>
       </div>
     </div>
@@ -1764,9 +1806,15 @@
       <label>نام شخص *</label>
       <input type="text" id="debtPerson" placeholder="مثلاً علی محمدی">
     </div>
-    <div class="form-group">
-      <label>تاریخ *</label>
-      <input type="date" id="debtDate">
+    <div class="form-row">
+      <div class="form-group">
+        <label>تاریخ *</label>
+        <input type="date" id="debtDate">
+      </div>
+      <div class="form-group">
+        <label>سررسید (اختیاری)</label>
+        <input type="date" id="debtDueDate">
+      </div>
     </div>
     <div class="form-group">
       <label>توضیحات (اختیاری)</label>
@@ -1779,56 +1827,61 @@
   </div>
 </div>
 
-<!-- ========== CALCULATOR MODAL - ENHANCED ========== -->
+<!-- ========== PROFESSIONAL CALCULATOR MODAL ========== -->
 <div class="modal-overlay" id="calculatorModal">
-  <div class="modal" style="max-width:340px;">
+  <div class="modal" style="max-width:360px;">
     <h2>🔢 ماشین حساب حرفه‌ای</h2>
     <div class="calculator">
-      <div class="calc-memory" id="calcMemory"></div>
-      <div class="calc-display">
-        <div class="calc-history" id="calcHistory"></div>
-        <div class="calc-current" id="calcDisplay">0</div>
+      <div class="calc-history" id="calcHistory"></div>
+      <div class="calc-display" id="calcDisplay">0</div>
+      
+      <div class="calc-memory-btns">
+        <button class="calc-memory-btn" onclick="calcMemoryClear()" title="پاک کردن حافظه">MC</button>
+        <button class="calc-memory-btn" onclick="calcMemoryRecall()" title="فراخوانی حافظه" id="calcMR">MR</button>
+        <button class="calc-memory-btn" onclick="calcMemoryAdd()" title="افزودن به حافظه">M+</button>
+        <button class="calc-memory-btn" onclick="calcMemorySubtract()" title="کسر از حافظه">M-</button>
+        <button class="calc-memory-btn" onclick="calcMemoryStore()" title="ذخیره در حافظه">MS</button>
       </div>
+      
       <div class="calc-buttons">
-        <!-- Row 1: Memory & Functions -->
-        <button class="calc-btn memory" onclick="calcMemoryClear()">MC</button>
-        <button class="calc-btn memory" onclick="calcMemoryRecall()">MR</button>
-        <button class="calc-btn memory" onclick="calcMemoryAdd()">M+</button>
-        <button class="calc-btn memory" onclick="calcMemorySubtract()">M-</button>
-        
-        <!-- Row 2: Functions -->
-        <button class="calc-btn function" onclick="calcFunction('sqrt')">√</button>
-        <button class="calc-btn function" onclick="calcFunction('square')">x²</button>
-        <button class="calc-btn function" onclick="calcFunction('percent')">%</button>
-        <button class="calc-btn clear" onclick="calcClear()">C</button>
-        
-        <!-- Row 3: Numbers & Operators -->
-        <button class="calc-btn" onclick="calcInput('7')">7</button>
-        <button class="calc-btn" onclick="calcInput('8')">8</button>
-        <button class="calc-btn" onclick="calcInput('9')">9</button>
+        <button class="calc-btn clear" onclick="calcAllClear()">AC</button>
+        <button class="calc-btn function" onclick="calcClearEntry()">CE</button>
+        <button class="calc-btn function" onclick="calcPercent()">%</button>
         <button class="calc-btn operator" onclick="calcInput('/')">÷</button>
         
-        <button class="calc-btn" onclick="calcInput('4')">4</button>
-        <button class="calc-btn" onclick="calcInput('5')">5</button>
-        <button class="calc-btn" onclick="calcInput('6')">6</button>
+        <button class="calc-btn function" onclick="calcSquareRoot()">√</button>
+        <button class="calc-btn function" onclick="calcSquare()">x²</button>
+        <button class="calc-btn function" onclick="calcInverse()">1/x</button>
         <button class="calc-btn operator" onclick="calcInput('*')">×</button>
         
-        <button class="calc-btn" onclick="calcInput('1')">1</button>
-        <button class="calc-btn" onclick="calcInput('2')">2</button>
-        <button class="calc-btn" onclick="calcInput('3')">3</button>
+        <button class="calc-btn number" onclick="calcInput('7')">7</button>
+        <button class="calc-btn number" onclick="calcInput('8')">8</button>
+        <button class="calc-btn number" onclick="calcInput('9')">9</button>
         <button class="calc-btn operator" onclick="calcInput('-')">−</button>
         
-        <button class="calc-btn zero" onclick="calcInput('0')">0</button>
-        <button class="calc-btn" onclick="calcInput('.')">.</button>
+        <button class="calc-btn number" onclick="calcInput('4')">4</button>
+        <button class="calc-btn number" onclick="calcInput('5')">5</button>
+        <button class="calc-btn number" onclick="calcInput('6')">6</button>
         <button class="calc-btn operator" onclick="calcInput('+')">+</button>
         
-        <button class="calc-btn equals" onclick="calcEquals()" style="grid-column:span 4;">=</button>
+        <button class="calc-btn number" onclick="calcInput('1')">1</button>
+        <button class="calc-btn number" onclick="calcInput('2')">2</button>
+        <button class="calc-btn number" onclick="calcInput('3')">3</button>
+        <button class="calc-btn equals" onclick="calcEquals()">=</button>
+        
+        <button class="calc-btn number" onclick="calcToggleSign()">±</button>
+        <button class="calc-btn number" onclick="calcInput('0')">0</button>
+        <button class="calc-btn number" onclick="calcInput('.')">.</button>
+        <button class="calc-btn function" onclick="calcBackspace()">⌫</button>
       </div>
-      <button class="btn btn-outline" onclick="closeCalculator()" style="width:100%;margin-top:12px;justify-content:center;">بستن</button>
+      
+      <div style="margin-top:16px;display:flex;gap:8px;">
+        <button class="btn btn-outline" onclick="calcCopyResult()" style="flex:1;justify-content:center;">📋 کپی</button>
+        <button class="btn btn-outline" onclick="closeCalculator()" style="flex:1;justify-content:center;">بستن</button>
+      </div>
     </div>
   </div>
 </div>
-
 <!-- ========== CATEGORY MODAL ========== -->
 <div class="modal-overlay" id="categoryModal">
   <div class="modal">
@@ -1859,26 +1912,85 @@
   </div>
 </div>
 
-<!-- ========== BUDGET MODAL ========== -->
+<!-- ========== BUDGET MODAL (Enhanced) ========== -->
 <div class="modal-overlay" id="budgetModal">
   <div class="modal">
-    <h2>🎯 بودجه جدید</h2>
+    <h2>🎯 بودجه جدید (پیشرفته)</h2>
+    
     <div class="form-group">
-      <label>دسته‌بندی هزینه *</label>
-      <select id="budgetCategory"></select>
+      <label>نوع بودجه</label>
+      <div class="budget-type-selector">
+        <div class="budget-type-item active" onclick="setBudgetType('category', this)">
+          <div class="budget-type-icon">🏷️</div>
+          <div class="budget-type-label">دسته‌بندی</div>
+        </div>
+        <div class="budget-type-item" onclick="setBudgetType('total', this)">
+          <div class="budget-type-icon">💰</div>
+          <div class="budget-type-label">کل هزینه</div>
+        </div>
+        <div class="budget-type-item" onclick="setBudgetType('custom', this)">
+          <div class="budget-type-icon">✨</div>
+          <div class="budget-type-label">سفارشی</div>
+        </div>
+      </div>
     </div>
+    
+    <div id="budgetCategorySection">
+      <div class="form-group">
+        <label>دسته‌بندی هزینه *</label>
+        <select id="budgetCategory"></select>
+      </div>
+    </div>
+    
+    <div id="budgetCustomSection" style="display:none;">
+      <div class="form-group">
+        <label>نام بودجه *</label>
+        <input type="text" id="budgetName" placeholder="مثلاً بودجه سفر">
+      </div>
+      <div class="form-group">
+        <label>دسته‌بندی‌های مشمول</label>
+        <div id="budgetCategoriesCheckbox" style="max-height:150px;overflow-y:auto;background:var(--glass2);padding:10px;border-radius:8px;"></div>
+      </div>
+    </div>
+    
     <div class="form-group">
       <label>مبلغ بودجه (تومان) *</label>
       <input type="number" id="budgetAmount" placeholder="مثلاً ۲٬۰۰۰٬۰۰۰" min="0">
     </div>
-    <div class="form-group">
-      <label>دوره زمانی</label>
-      <select id="budgetPeriod">
-        <option value="monthly">ماهانه</option>
-        <option value="weekly">هفتگی</option>
-        <option value="yearly">سالانه</option>
-      </select>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>دوره زمانی</label>
+        <select id="budgetPeriod">
+          <option value="monthly">ماهانه</option>
+          <option value="weekly">هفتگی</option>
+          <option value="yearly">سالانه</option>
+          <option value="custom">بازه سفارشی</option>
+        </select>
+      </div>
+      <div class="form-group" id="customDateSection" style="display:none;">
+        <label>تاریخ پایان</label>
+        <input type="date" id="budgetEndDate">
+      </div>
     </div>
+    
+    <div class="form-group">
+      <label>آستانه هشدار: <span id="alertThresholdValue">70%</span></label>
+      <input type="range" class="alert-threshold-slider" id="alertThreshold" min="50" max="95" value="70" 
+        oninput="document.getElementById('alertThresholdValue').textContent = this.value + '%'">
+      <div class="slider-labels">
+        <span>50%</span>
+        <span>95%</span>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="budgetRollover" style="width:16px;height:16px;accent-color:var(--accent);">
+        <span>انتقال باقیمانده به دوره بعد</span>
+      </label>
+    </div>
+    
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeBudgetModal()">انصراف</button>
       <button class="btn btn-primary" onclick="saveBudget()">💾 ذخیره</button>
@@ -1890,6 +2002,30 @@
 <input type="file" id="fileInput" accept=".json" style="display:none;">
 
 <script>
+  // ============ ELECTRON API CHECK ============
+  const isElectron = typeof window.electronAPI !== 'undefined';
+
+  // ============ WINDOW CONTROLS ============
+  document.getElementById('closeBtn').addEventListener('click', () => {
+    if (isElectron) {
+      window.electronAPI.close();
+    } else {
+      window.close();
+    }
+  });
+
+  document.getElementById('minimizeBtn').addEventListener('click', () => {
+    if (isElectron) {
+      window.electronAPI.minimize();
+    }
+  });
+
+  document.getElementById('maximizeBtn').addEventListener('click', () => {
+    if (isElectron) {
+      window.electronAPI.maximize();
+    }
+  });
+
   // ============ PERSIAN CALENDAR CONVERTER ============
   function gregorianToJalali(gy, gm, gd) {
     const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
@@ -1915,8 +2051,7 @@
   const persianDays = ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه','شنبه'];
 
   function getPersianDate(date = new Date()) {
-    const jalali = gregorianToJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
-    return jalali;
+    return gregorianToJalali(date.getFullYear(), date.getMonth() + 1, date.getDate());
   }
 
   function formatPersianDate(date = new Date()) {
@@ -1925,16 +2060,17 @@
     return `${dayName}، ${jalali.day} ${persianMonths[jalali.month - 1]} ${jalali.year}`;
   }
 
-  // ============ STORAGE & DATA ============
+  // ============ STORAGE KEYS ============
   const STORAGE_KEYS = {
-    transactions: 'poolyar_transactions_v2',
-    categories: 'poolyar_categories_v2',
-    budgets: 'poolyar_budgets_v2',
-    debts: 'poolyar_debts_v2',
-    theme: 'poolyar_theme_v2',
-    settings: 'poolyar_settings_v2'
+    transactions: 'poolyar_transactions_v3',
+    categories: 'poolyar_categories_v3',
+    budgets: 'poolyar_budgets_v3',
+    debts: 'poolyar_debts_v3',
+    theme: 'poolyar_theme_v3',
+    settings: 'poolyar_settings_v3'
   };
 
+  // ============ DATA ============
   let transactions = [];
   let categories = {};
   let budgets = [];
@@ -1948,20 +2084,17 @@
   let selectedEmoji = '📦';
   let selectedColor = '#6c5ce7';
   let isDark = false;
-  
-  // Calculator variables
-  let calcCurrentValue = '0';
-  let calcPreviousValue = null;
+  let budgetType = 'category';
+
+  // Calculator state
+  let calcDisplay = '0';
+  let calcPrevious = null;
   let calcOperator = null;
-  let calcMemory = 0;
   let calcWaitingForOperand = false;
+  let calcMemory = 0;
+  let calcHistory = '';
 
-  // Window control variables
-  let isMaximized = false;
-  let isDragging = false;
-  let dragOffsetX = 0;
-  let dragOffsetY = 0;
-
+  // ============ DEFAULT CATEGORIES ============
   const defaultCategories = {
     salary:    { icon:'💼', label:'حقوق',      color:'#6c5ce7', type:'income', isDefault:true },
     freelance: { icon:'💻', label:'فریلنسری',   color:'#a29bfe', type:'income', isDefault:true },
@@ -1978,133 +2111,10 @@
     other:     { icon:'📦', label:'سایر',       color:'#95a5a6', type:'both', isDefault:true }
   };
 
-  const emojis = ['💰','💵','💴','💶','💷','💸','🤑','💳','🏦','📊','📈','📉','💼','🏢','🏭','🏪','🏬','🛒','🛍️','🎁','🎉','🎊','🎈','🎀','💝','🍕','🍔','🍟','🍗','🍖','🌭','🍿','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🥗','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🍤','🍙','🍚','🍘','🍥','🥠','🥮','🍢','🍡','🍧','🍨','🍦','🥧','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍩','🍪','☕','🍵','🧃','🥤','🧋','🍶','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🍾','🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🚲','🛵','🏍️','✈️','🚁','🚂','⛵','🚤','🛥️','🏠','🏡','🏢','🏬','🏣','🏤','🏥','🏦','🏨','🏪','🏫','💒','⛪','📱','💻','⌨️','🖥️','🖨️','📷','📸','📹','🎥','📞','☎️','📺','📻','🎙️','⏰','🕰️','💡','🔦','🕯️','🪙','💎','🔧','🔨','⚒️','🛠️','⛏️','💊','💉','🩹','🩺','🧬','🧪','🎓','📚','📖','📝','✏️','📌','📍','✂️','🖊️','🖋️','🖍️','🎨','🖼️','🎭','🎪','🎬','🎤','🎧','🎼','🎹','🥁','🎷','🎺','🎸','🎻','🎮','🕹️','🎯','🎲','🎰','🏀','⚽','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🥊','🥋','🥅','⛳','🏹','🎣','🤿'];
+  // ============ EMOJI & COLORS ============
+  const emojis = ['💰','💵','💴','💶','💷','💸','🤑','💳','🏦','📊','📈','📉','💼','🏢','🏭','🏪','🏬','🛒','🛍️','🎁','🎉','🍕','🍔','🍟','🚗','🚕','🚙','🚌','✈️','🏠','🏡','📱','💻','⌨️','🖥️','📺','💊','💉','🎓','📚','📖','📝','🎨','🎭','🎬','🎤','🎧','🎮','🕹️','🏀','⚽','🎯','🎰'];
 
-  const colors = ['#6c5ce7','#a29bfe','#fd79a8','#e55039','#f9ca24','#e056a0','#00b894','#55efc4','#e17055','#0984e3','#74b9ff','#636e72','#b2bec3','#2d3436','#ff7675','#fab1a0','#ffeaa7','#dfe6e9','#00cec9','#81ecec','#fdcb6e','#d63031','#ff6b6b','#ee5a6f','#c44569','#f368e0','#ff9ff3','#54a0ff','#48dbfb','#0abde3','#00d2d3','#1dd1a1','#10ac84','#576574','#222f3e','#f8b500','#ff6348'];
-
-  // ============ WINDOW CONTROLS - FIXED ============
-  function setupWindowControls() {
-    const windowFrame = document.getElementById('windowFrame');
-    const titlebar = document.getElementById('titlebar');
-    const closeBtn = document.getElementById('closeBtn');
-    const minimizeBtn = document.getElementById('minimizeBtn');
-    const maximizeBtn = document.getElementById('maximizeBtn');
-
-    // Close button
-    closeBtn.addEventListener('click', () => {
-      if (confirm('آیا می‌خواهید برنامه را ببندید؟')) {
-        windowFrame.style.opacity = '0';
-        windowFrame.style.transform = 'translate(-50%, -50%) scale(0.8)';
-        setTimeout(() => {
-          window.close();
-          windowFrame.style.display = 'none';
-        }, 300);
-      }
-    });
-
-    // Minimize button
-    minimizeBtn.addEventListener('click', () => {
-      windowFrame.classList.add('minimized');
-      setTimeout(() => {
-        if (confirm('برنامه minimize شد. برای بازگشت کلیک کنید.')) {
-          windowFrame.classList.remove('minimized');
-        }
-      }, 500);
-    });
-
-    // Maximize button
-    maximizeBtn.addEventListener('click', () => {
-      toggleMaximize();
-    });
-
-    // Drag functionality
-    titlebar.addEventListener('mousedown', startDragging);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', stopDragging);
-
-    // Double click to maximize
-    titlebar.addEventListener('dblclick', () => {
-      toggleMaximize();
-    });
-  }
-
-  function toggleMaximize() {
-    const windowFrame = document.getElementById('windowFrame');
-    isMaximized = !isMaximized;
-    
-    if (isMaximized) {
-      // Save current position
-      windowFrame.dataset.prevLeft = windowFrame.style.left || '50%';
-      windowFrame.dataset.prevTop = windowFrame.style.top || '50%';
-      windowFrame.dataset.prevTransform = windowFrame.style.transform || 'translate(-50%, -50%)';
-      
-      // Maximize
-      windowFrame.classList.add('maximized');
-    } else {
-      // Restore
-      windowFrame.classList.remove('maximized');
-      
-      // Restore position after animation
-      setTimeout(() => {
-        windowFrame.style.left = windowFrame.dataset.prevLeft;
-        windowFrame.style.top = windowFrame.dataset.prevTop;
-        windowFrame.style.transform = windowFrame.dataset.prevTransform;
-      }, 50);
-    }
-  }
-
-  function startDragging(e) {
-    // Don't drag if maximized or clicking on buttons
-    if (isMaximized) return;
-    if (e.target.closest('.dot') || e.target.closest('.titlebar-actions')) return;
-    
-    isDragging = true;
-    const windowFrame = document.getElementById('windowFrame');
-    const rect = windowFrame.getBoundingClientRect();
-    
-    // Calculate offset from mouse to window top-left
-    dragOffsetX = e.clientX - rect.left;
-    dragOffsetY = e.clientY - rect.top;
-    
-    // Remove transform and prepare for absolute positioning
-    windowFrame.style.transition = 'none';
-    windowFrame.style.transform = 'none';
-    windowFrame.style.left = rect.left + 'px';
-    windowFrame.style.top = rect.top + 'px';
-    
-    document.body.style.cursor = 'grabbing';
-    document.body.style.userSelect = 'none';
-  }
-
-  function drag(e) {
-    if (!isDragging) return;
-    
-    const windowFrame = document.getElementById('windowFrame');
-    
-    // Calculate new position
-    let newX = e.clientX - dragOffsetX;
-    let newY = e.clientY - dragOffsetY;
-    
-    // Optional: Keep window within viewport bounds
-    const maxX = window.innerWidth - windowFrame.offsetWidth;
-    const maxY = window.innerHeight - windowFrame.offsetHeight;
-    
-    newX = Math.max(0, Math.min(newX, maxX));
-    newY = Math.max(0, Math.min(newY, maxY));
-    
-    windowFrame.style.left = newX + 'px';
-    windowFrame.style.top = newY + 'px';
-  }
-
-  function stopDragging() {
-    if (!isDragging) return;
-    
-    isDragging = false;
-    const windowFrame = document.getElementById('windowFrame');
-    windowFrame.style.transition = '';
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-  }
+  const colors = ['#6c5ce7','#a29bfe','#fd79a8','#e55039','#f9ca24','#e056a0','#00b894','#55efc4','#e17055','#0984e3','#74b9ff','#636e72','#b2bec3','#2d3436','#ff7675','#fab1a0','#ffeaa7','#00cec9','#81ecec','#fdcb6e','#d63031','#ff6b6b','#c44569','#f368e0','#54a0ff','#48dbfb','#1dd1a1','#10ac84'];
 
   // ============ HELPERS ============
   function daysAgo(n) {
@@ -2148,6 +2158,7 @@
       .filter(([_, cat]) => cat.type === type || cat.type === 'both')
       .map(([key, cat]) => ({ key, ...cat }));
   }
+
   // ============ LOAD/SAVE ============
   function loadData() {
     try {
@@ -2201,6 +2212,8 @@
     saveData();
   }
 
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
   // ============ NAVIGATION ============
   function switchPage(page, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2218,14 +2231,194 @@
     setTimeout(() => el.classList.remove('show'), 2500);
   }
 
-  // ============ CALCULATOR - ENHANCED ============
-  function openCalculator() {
-    calcCurrentValue = '0';
-    calcPreviousValue = null;
+  // ============ PROFESSIONAL CALCULATOR ============
+  function updateCalcDisplay() {
+    document.getElementById('calcDisplay').textContent = calcDisplay;
+    document.getElementById('calcHistory').textContent = calcHistory;
+    document.getElementById('calcMR').classList.toggle('has-memory', calcMemory !== 0);
+  }
+
+  function calcInput(value) {
+    if (calcWaitingForOperand) {
+      calcDisplay = value;
+      calcWaitingForOperand = false;
+    } else {
+      if (value === '.' && calcDisplay.includes('.')) return;
+      calcDisplay = calcDisplay === '0' ? value : calcDisplay + value;
+    }
+    updateCalcDisplay();
+  }
+
+  function calcAllClear() {
+    calcDisplay = '0';
+    calcPrevious = null;
     calcOperator = null;
     calcWaitingForOperand = false;
+    calcHistory = '';
     updateCalcDisplay();
-    updateCalcMemoryDisplay();
+  }
+
+  function calcClearEntry() {
+    calcDisplay = '0';
+    updateCalcDisplay();
+  }
+
+  function performCalculation() {
+    const current = parseFloat(calcDisplay);
+    const previous = parseFloat(calcPrevious);
+    
+    if (isNaN(previous) || isNaN(current)) return current;
+    
+    switch (calcOperator) {
+      case '+': return previous + current;
+      case '-': return previous - current;
+      case '*': return previous * current;
+      case '/': return current !== 0 ? previous / current : 'خطا';
+      default: return current;
+    }
+  }
+
+  function calcEquals() {
+    if (calcOperator === null || calcPrevious === null) return;
+    
+    const current = parseFloat(calcDisplay);
+    calcHistory = `${calcPrevious} ${getOperatorSymbol(calcOperator)} ${current} =`;
+    
+    const result = performCalculation();
+    calcDisplay = typeof result === 'number' ? String(result) : result;
+    calcPrevious = null;
+    calcOperator = null;
+    calcWaitingForOperand = true;
+    updateCalcDisplay();
+  }
+
+  function getOperatorSymbol(op) {
+    switch (op) {
+      case '+': return '+';
+      case '-': return '−';
+      case '*': return '×';
+      case '/': return '÷';
+      default: return op;
+    }
+  }
+
+  function calcInput(value) {
+    if (['+', '-', '*', '/'].includes(value)) {
+      if (calcOperator !== null && !calcWaitingForOperand) {
+        const result = performCalculation();
+        calcDisplay = String(result);
+      }
+      calcPrevious = calcDisplay;
+      calcOperator = value;
+      calcWaitingForOperand = true;
+      calcHistory = `${calcDisplay} ${getOperatorSymbol(value)}`;
+      updateCalcDisplay();
+      return;
+    }
+    
+    if (calcWaitingForOperand) {
+      calcDisplay = value === '.' ? '0.' : value;
+      calcWaitingForOperand = false;
+    } else {
+      if (value === '.' && calcDisplay.includes('.')) return;
+      calcDisplay = calcDisplay === '0' && value !== '.' ? value : calcDisplay + value;
+    }
+    updateCalcDisplay();
+  }
+
+  function calcPercent() {
+    const current = parseFloat(calcDisplay);
+    if (calcPrevious !== null) {
+      calcDisplay = String((parseFloat(calcPrevious) * current) / 100);
+    } else {
+      calcDisplay = String(current / 100);
+    }
+    updateCalcDisplay();
+  }
+
+  function calcSquareRoot() {
+    const current = parseFloat(calcDisplay);
+    if (current < 0) {
+      calcDisplay = 'خطا';
+    } else {
+      calcHistory = `√(${current})`;
+      calcDisplay = String(Math.sqrt(current));
+    }
+    calcWaitingForOperand = true;
+    updateCalcDisplay();
+  }
+
+  function calcSquare() {
+    const current = parseFloat(calcDisplay);
+    calcHistory = `(${current})²`;
+    calcDisplay = String(current * current);
+    calcWaitingForOperand = true;
+    updateCalcDisplay();
+  }
+
+  function calcInverse() {
+    const current = parseFloat(calcDisplay);
+    if (current === 0) {
+      calcDisplay = 'خطا';
+    } else {
+      calcHistory = `1/(${current})`;
+      calcDisplay = String(1 / current);
+    }
+    calcWaitingForOperand = true;
+    updateCalcDisplay();
+  }
+
+  function calcToggleSign() {
+    const current = parseFloat(calcDisplay);
+    calcDisplay = String(current * -1);
+    updateCalcDisplay();
+  }
+function calcBackspace() {
+  if (calcDisplay.length > 1) {
+    calcDisplay = calcDisplay.slice(0, -1);
+  } else {
+    calcDisplay = '0';
+  }
+  updateCalcDisplay();
+}
+  function calcMemoryClear() {
+    calcMemory = 0;
+    notify('🧹 حافظه پاک شد');
+    updateCalcDisplay();
+  }
+
+  function calcMemoryRecall() {
+    calcDisplay = String(calcMemory);
+    calcWaitingForOperand = true;
+    updateCalcDisplay();
+  }
+
+  function calcMemoryAdd() {
+    calcMemory += parseFloat(calcDisplay);
+    notify(`✅ به حافظه اضافه شد: ${fmt(calcMemory)}`);
+    updateCalcDisplay();
+  }
+
+  function calcMemorySubtract() {
+    calcMemory -= parseFloat(calcDisplay);
+    notify(`✅ از حافظه کسر شد: ${fmt(calcMemory)}`);
+    updateCalcDisplay();
+  }
+
+  function calcMemoryStore() {
+    calcMemory = parseFloat(calcDisplay);
+    notify(`💾 ذخیره شد: ${fmt(calcMemory)}`);
+    updateCalcDisplay();
+  }
+
+  function calcCopyResult() {
+    navigator.clipboard.writeText(calcDisplay).then(() => {
+      notify('📋 نتیجه کپی شد');
+    });
+  }
+
+  function openCalculator() {
+    calcAllClear();
     document.getElementById('calculatorModal').classList.add('active');
   }
 
@@ -2233,122 +2426,25 @@
     document.getElementById('calculatorModal').classList.remove('active');
   }
 
-  function updateCalcDisplay() {
-    document.getElementById('calcDisplay').textContent = calcCurrentValue;
-    document.getElementById('calcHistory').textContent = 
-      calcPreviousValue && calcOperator ? `${calcPreviousValue} ${calcOperator}` : '';
-  }
+  document.getElementById('calculatorModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeCalculator();
+  });
 
-  function updateCalcMemoryDisplay() {
-    const memEl = document.getElementById('calcMemory');
-    memEl.innerHTML = calcMemory !== 0 ? '<span class="calc-memory-indicator">M: ' + calcMemory + '</span>' : '';
-  }
-
-  function calcInput(val) {
-    if (calcWaitingForOperand) {
-      calcCurrentValue = val;
-      calcWaitingForOperand = false;
-    } else {
-      calcCurrentValue = calcCurrentValue === '0' ? val : calcCurrentValue + val;
-    }
-    updateCalcDisplay();
-  }
-
-  function calcClear() {
-    calcCurrentValue = '0';
-    calcPreviousValue = null;
-    calcOperator = null;
-    calcWaitingForOperand = false;
-    updateCalcDisplay();
-  }
-
-  function calcEquals() {
-        if (!calcPreviousValue || !calcOperator) return;
+  // Keyboard support for calculator
+  document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('calculatorModal').classList.contains('active')) return;
     
-    const prev = parseFloat(calcPreviousValue);
-    const current = parseFloat(calcCurrentValue);
-    let result = 0;
-
-    switch (calcOperator) {
-      case '+': result = prev + current; break;
-      case '-': result = prev - current; break;
-      case '*': result = prev * current; break;
-      case '/': result = current !== 0 ? prev / current : 0; break;
-    }
-
-    calcCurrentValue = result.toString();
-    calcPreviousValue = null;
-    calcOperator = null;
-    calcWaitingForOperand = true;
-    updateCalcDisplay();
-  }
-
-  function calcFunction(func) {
-    const current = parseFloat(calcCurrentValue);
-    let result = current;
-
-    switch (func) {
-      case 'sqrt':
-        result = Math.sqrt(current);
-        break;
-      case 'square':
-        result = current * current;
-        break;
-      case 'percent':
-        if (calcPreviousValue && calcOperator) {
-          const prev = parseFloat(calcPreviousValue);
-          result = (prev * current) / 100;
-        } else {
-          result = current / 100;
-        }
-        break;
-    }
-
-    calcCurrentValue = result.toString();
-    calcWaitingForOperand = true;
-    updateCalcDisplay();
-  }
-
-  function calcMemoryAdd() {
-    calcMemory += parseFloat(calcCurrentValue);
-    updateCalcMemoryDisplay();
-  }
-
-  function calcMemorySubtract() {
-    calcMemory -= parseFloat(calcCurrentValue);
-    updateCalcMemoryDisplay();
-  }
-
-  function calcMemoryRecall() {
-    calcCurrentValue = calcMemory.toString();
-    updateCalcDisplay();
-  }
-
-  function calcMemoryClear() {
-    calcMemory = 0;
-    updateCalcMemoryDisplay();
-  }
-
-  // Handle operator input
-  window.calcInput = function(val) {
-    if (['+', '-', '*', '/'].includes(val)) {
-      if (calcPreviousValue && calcOperator && !calcWaitingForOperand) {
-        calcEquals();
-      }
-      calcPreviousValue = calcCurrentValue;
-      calcOperator = val;
-      calcWaitingForOperand = true;
-      updateCalcDisplay();
-    } else {
-      if (calcWaitingForOperand) {
-        calcCurrentValue = val;
-        calcWaitingForOperand = false;
-      } else {
-        calcCurrentValue = calcCurrentValue === '0' ? val : calcCurrentValue + val;
-      }
-      updateCalcDisplay();
-    }
-  };
+    if (e.key >= '0' && e.key <= '9') calcInput(e.key);
+    else if (e.key === '.') calcInput('.');
+    else if (e.key === '+') calcInput('+');
+    else if (e.key === '-') calcInput('-');
+    else if (e.key === '*') calcInput('*');
+    else if (e.key === '/') calcInput('/');
+    else if (e.key === 'Enter' || e.key === '=') calcEquals();
+    else if (e.key === 'Escape') closeCalculator();
+    else if (e.key === 'Backspace') calcClearEntry();
+    else if (e.key === 'Delete') calcAllClear();
+  });
 
   // ============ TRANSACTION MODAL ============
   function updateCategoryOptions() {
@@ -2425,6 +2521,7 @@
     document.getElementById('debtTitle').value = '';
     document.getElementById('debtPerson').value = '';
     document.getElementById('debtNote').value = '';
+    document.getElementById('debtDueDate').value = '';
     document.getElementById('debtModalOverlay').classList.add('active');
     setTimeout(() => document.getElementById('debtAmount').focus(), 200);
   }
@@ -2435,9 +2532,6 @@
 
   document.getElementById('debtModalOverlay').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeDebtModal();
-  });
-  document.getElementById('calculatorModal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeCalculator();
   });
 
   function setDebtType(type) {
@@ -2450,17 +2544,13 @@
     const creditBtn = document.getElementById('debtTypeCredit');
     
     if (currentDebtType === 'debt') {
-      debtBtn.classList.add('active');
       debtBtn.style.background = 'var(--orange)';
       debtBtn.style.color = '#fff';
-      creditBtn.classList.remove('active');
       creditBtn.style.background = 'transparent';
       creditBtn.style.color = 'var(--text2)';
     } else {
-      creditBtn.classList.add('active');
       creditBtn.style.background = 'var(--blue)';
       creditBtn.style.color = '#fff';
-      debtBtn.classList.remove('active');
       debtBtn.style.background = 'transparent';
       debtBtn.style.color = 'var(--text2)';
     }
@@ -2471,6 +2561,7 @@
     const title = document.getElementById('debtTitle').value.trim();
     const person = document.getElementById('debtPerson').value.trim();
     const date = document.getElementById('debtDate').value;
+    const dueDate = document.getElementById('debtDueDate').value;
     const note = document.getElementById('debtNote').value.trim();
 
     if (!amount || amount <= 0) { notify('❌ لطفاً مبلغ معتبر وارد کنید'); return; }
@@ -2485,6 +2576,7 @@
       title, 
       person, 
       date, 
+      dueDate,
       note,
       completed: false 
     });
@@ -2526,27 +2618,33 @@
     notify('🗑️ حذف شد');
   }
 
-  // ============ RENDER DASHBOARD DEBTS ============
-  function renderDashboardDebts() {
-    const activeDebts = debts.filter(d => !d.completed).slice(0, 6);
+  // ============ QUICK DEBTS FOR DASHBOARD ============
+  function renderQuickDebts() {
+    const activeDebts = debts.filter(d => !d.completed).sort((a, b) => new Date(a.dueDate || a.date) - new Date(b.dueDate || b.date)).slice(0, 6);
     
     if (!activeDebts.length) {
-      document.getElementById('dashboardDebts').innerHTML = '<div class="empty-state">بدهی یا طلبی ثبت نشده است</div>';
+      document.getElementById('quickDebts').innerHTML = `
+        <div class="empty-state" style="padding:40px 20px;">
+          <div style="font-size:36px;margin-bottom:10px;">📝</div>
+          <div>بدهی یا طلب فعالی وجود ندارد</div>
+          <button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="openDebtModal()">➕ ثبت جدید</button>
+        </div>
+      `;
       return;
     }
 
-    document.getElementById('dashboardDebts').innerHTML = activeDebts.map(d => `
-      <div class="debt-compact" onclick="switchPage('debts',document.querySelectorAll('.nav-item')[2])">
-        <div class="debt-compact-left">
-          <div class="debt-compact-icon" style="background:${d.type === 'debt' ? 'var(--red-bg)' : 'var(--blue-bg)'};">
+    document.getElementById('quickDebts').innerHTML = activeDebts.map(d => `
+      <div class="quick-debt-item ${d.type}-type" onclick="switchPage('debts',document.querySelectorAll('.nav-item')[2])">
+        <div class="quick-debt-info">
+          <div class="quick-debt-icon" style="background:${d.type === 'debt' ? 'var(--red-bg)' : 'var(--green-bg)'};">
             ${d.type === 'debt' ? '📤' : '📥'}
           </div>
-          <div class="debt-compact-info">
-            <div class="debt-compact-title">${d.title}</div>
-            <div class="debt-compact-person">${d.type === 'debt' ? 'به' : 'از'}: ${d.person}</div>
+          <div class="quick-debt-details">
+            <div class="quick-debt-title">${d.title}</div>
+            <div class="quick-debt-person">${d.type === 'debt' ? 'به' : 'از'}: ${d.person}</div>
           </div>
         </div>
-        <div class="debt-compact-amount" style="color:${d.type === 'debt' ? 'var(--red)' : 'var(--green)'};">
+        <div class="quick-debt-amount" style="color:${d.type === 'debt' ? 'var(--red)' : 'var(--green)'};">
           ${d.type === 'debt' ? '-' : '+'}${fmt(d.amount)}
         </div>
       </div>
@@ -2584,7 +2682,7 @@
           </div>
           <div>
             <div class="debt-amount debt">${fmt(d.amount)} ت</div>
-            <div class="debt-date">${fmtDate(d.date)}</div>
+            <div class="debt-date">${fmtDate(d.date)}${d.dueDate ? ` • سررسید: ${fmtDate(d.dueDate)}` : ''}</div>
           </div>
           <div class="debt-actions">
             <button class="tx-delete" onclick="deleteDebt('${d.id}')" title="حذف">🗑️</button>
@@ -2604,7 +2702,7 @@
           </div>
           <div>
             <div class="debt-amount credit">+${fmt(d.amount)} ت</div>
-            <div class="debt-date">${fmtDate(d.date)}</div>
+            <div class="debt-date">${fmtDate(d.date)}${d.dueDate ? ` • سررسید: ${fmtDate(d.dueDate)}` : ''}</div>
           </div>
           <div class="debt-actions">
             <button class="tx-delete" onclick="deleteDebt('${d.id}')" title="حذف">🗑️</button>
@@ -2612,6 +2710,143 @@
         </div>
       </div>
     `).join('') : '<div class="empty-state">طلبی ثبت نشده است</div>';
+  }
+
+  // ============ BUDGET MODAL (Enhanced) ============
+  function setBudgetType(type, el) {
+    budgetType = type;
+    document.querySelectorAll('.budget-type-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('budgetCategorySection').style.display = type === 'category' ? 'block' : 'none';
+    document.getElementById('budgetCustomSection').style.display = type === 'custom' ? 'block' : 'none';
+    
+    if (type === 'custom') {
+      renderBudgetCategoryCheckboxes();
+    }
+  }
+
+  function renderBudgetCategoryCheckboxes() {
+    const expenseCats = getCategoryList('expense').filter(c => c.type === 'expense');
+    document.getElementById('budgetCategoriesCheckbox').innerHTML = expenseCats.map(c => `
+      <label style="display:flex;align-items:center;gap:8px;padding:6px;cursor:pointer;border-radius:6px;transition:background 0.2s;">
+        <input type="checkbox" value="${c.key}" style="width:16px;height:16px;accent-color:var(--accent);">
+        <span>${c.icon} ${c.label}</span>
+      </label>
+    `).join('');
+  }
+
+  document.getElementById('budgetPeriod').addEventListener('change', function() {
+    document.getElementById('customDateSection').style.display = this.value === 'custom' ? 'block' : 'none';
+  });
+
+  function openBudgetModal() {
+    budgetType = 'category';
+    document.querySelectorAll('.budget-type-item').forEach((item, index) => {
+      item.classList.toggle('active', index === 0);
+    });
+    document.getElementById('budgetCategorySection').style.display = 'block';
+    document.getElementById('budgetCustomSection').style.display = 'none';
+    document.getElementById('customDateSection').style.display = 'none';
+    
+    const expenseCats = getCategoryList('expense').filter(c => c.type === 'expense');
+    document.getElementById('budgetCategory').innerHTML = expenseCats.map(c =>
+      `<option value="${c.key}">${c.icon} ${c.label}</option>`
+    ).join('');
+    
+    document.getElementById('budgetAmount').value = '';
+    document.getElementById('budgetPeriod').value = 'monthly';
+    document.getElementById('alertThreshold').value = 70;
+    document.getElementById('alertThresholdValue').textContent = '70%';
+    document.getElementById('budgetRollover').checked = false;
+    document.getElementById('budgetName').value = '';
+    document.getElementById('budgetEndDate').value = '';
+    
+    document.getElementById('budgetModal').classList.add('active');
+  }
+
+  function closeBudgetModal() {
+    document.getElementById('budgetModal').classList.remove('active');
+  }
+
+  document.getElementById('budgetModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeBudgetModal();
+  });
+
+  function saveBudget() {
+    const amount = parseInt(document.getElementById('budgetAmount').value);
+    const period = document.getElementById('budgetPeriod').value;
+    const alertThreshold = parseInt(document.getElementById('alertThreshold').value);
+    const rollover = document.getElementById('budgetRollover').checked;
+    
+    if (!amount || amount <= 0) { notify('❌ لطفاً مبلغ معتبر وارد کنید'); return; }
+    
+    let budgetData = {
+      id: genId(),
+      amount,
+      period,
+      alertThreshold,
+      rollover,
+      type: budgetType,
+      createdAt: new Date().toISOString()
+    };
+    
+    if (budgetType === 'category') {
+      budgetData.category = document.getElementById('budgetCategory').value;
+      const existing = budgets.findIndex(b => b.category === budgetData.category && b.type === 'category');
+      if (existing >= 0) {
+        budgets[existing] = { ...budgets[existing], ...budgetData, id: budgets[existing].id };
+      } else {
+        budgets.push(budgetData);
+      }
+    } else if (budgetType === 'total') {
+      budgetData.name = 'کل هزینه‌ها';
+      budgetData.categories = getCategoryList('expense').filter(c => c.type === 'expense').map(c => c.key);
+      budgets.push(budgetData);
+    } else if (budgetType === 'custom') {
+      const name = document.getElementById('budgetName').value.trim();
+      if (!name) { notify('❌ لطفاً نام بودجه را وارد کنید'); return; }
+      
+      const selectedCats = Array.from(document.querySelectorAll('#budgetCategoriesCheckbox input:checked'))
+        .map(cb => cb.value);
+      if (!selectedCats.length) { notify('❌ لطفاً حداقل یک دسته‌بندی انتخاب کنید'); return; }
+      
+      budgetData.name = name;
+      budgetData.categories = selectedCats;
+      
+      if (period === 'custom') {
+        const endDate = document.getElementById('budgetEndDate').value;
+        if (!endDate) { notify('❌ لطفاً تاریخ پایان را مشخص کنید'); return; }
+        budgetData.endDate = endDate;
+      }
+      
+      budgets.push(budgetData);
+    }
+
+    closeBudgetModal();
+    saveData();
+    renderAll();
+    notify('✅ بودجه با موفقیت ثبت شد');
+  }
+
+  function deleteBudget(id) {
+    if (!confirm('آیا از حذف این بودجه مطمئن هستید؟')) return;
+    budgets = budgets.filter(b => b.id !== id);
+    saveData();
+    renderAll();
+    notify('🗑️ بودجه حذف شد');
+  }
+
+  function getBudgetSpent(budget) {
+    const thisMonth = getJalaliMonth(0);
+    
+    if (budget.type === 'category') {
+      return thisMonth.filter(t => t.type === 'expense' && t.category === budget.category)
+        .reduce((s, t) => s + t.amount, 0);
+    } else if (budget.categories && budget.categories.length) {
+      return thisMonth.filter(t => t.type === 'expense' && budget.categories.includes(t.category))
+        .reduce((s, t) => s + t.amount, 0);
+    }
+    return 0;
   }
 
   // ============ CATEGORY MODAL ============
@@ -2639,7 +2874,9 @@
 
   function selectColor(color) {
     selectedColor = color;
-    renderColorPicker();
+    document.querySelectorAll('.color-item').forEach(e => {
+      e.classList.toggle('active', e.style.background === color);
+    });
   }
 
   function setCatType(type) {
@@ -2738,376 +2975,245 @@
       : '<div class="empty-state">دسته‌بندی هزینه‌ای وجود ندارد</div>';
   }
 
-  // ============ BUDGET MODAL ============
-  function openBudgetModal() {
-    const expenseCats = getCategoryList('expense').filter(c => c.type === 'expense');
-    document.getElementById('budgetCategory').innerHTML = expenseCats.map(c =>
-      `<option value="${c.key}">${c.icon} ${c.label}</option>`
-    ).join('');
-    document.getElementById('budgetAmount').value = '';
-    document.getElementById('budgetModal').classList.add('active');
-    setTimeout(() => document.getElementById('budgetAmount').focus(), 200);
-  }
-
-  function closeBudgetModal() {
-    document.getElementById('budgetModal').classList.remove('active');
-  }
-
-  document.getElementById('budgetModal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeBudgetModal();
-  });
-
-  function saveBudget() {
-    const category = document.getElementById('budgetCategory').value;
-    const amount = parseInt(document.getElementById('budgetAmount').value);
-    const period = document.getElementById('budgetPeriod').value;
-
-    if (!amount || amount <= 0) { notify('❌ لطفاً مبلغ معتبر وارد کنید'); return; }
-
-    const existingIndex = budgets.findIndex(b => b.category === category && b.period === period);
-    if (existingIndex >= 0) {
-      budgets[existingIndex].amount = amount;
-      notify('✅ بودجه به‌روزرسانی شد');
-    } else {
-      budgets.push({ id: genId(), category, amount, period });
-      notify('✅ بودجه جدید ایجاد شد');
-    }
-
-    closeBudgetModal();
-    saveData();
-    renderAll();
-  }
-
-  function deleteBudget(id) {
-    if (!confirm('آیا از حذف این بودجه مطمئن هستید؟')) return;
-    budgets = budgets.filter(b => b.id !== id);
-    saveData();
-    renderAll();
-    notify('🗑️ بودجه حذف شد');
-  }
-
-  function renderBudgets() {
-    const monthlyTx = getJalaliMonth();
-    
-    let totalBudget = 0;
-    let totalSpent = 0;
-
-    const budgetCardsHTML = budgets.map(b => {
-      const cat = categories[b.category];
-      if (!cat) return '';
-
-      const spent = monthlyTx.filter(t => t.type === 'expense' && t.category === b.category)
-        .reduce((s, t) => s + t.amount, 0);
-      
-      const percent = b.amount > 0 ? Math.min((spent / b.amount) * 100, 100) : 0;
-      const remaining = b.amount - spent;
-
-      totalBudget += b.amount;
-      totalSpent += spent;
-
-      const alertClass = percent >= 100 ? 'danger' : percent >= 80 ? '' : 'success';
-      const alertIcon = percent >= 100 ? '🚨' : percent >= 80 ? '⚠️' : '✅';
-      const alertText = percent >= 100 ? 'بودجه تمام شده!' : percent >= 80 ? 'نزدیک به اتمام بودجه' : 'در محدوده بودجه';
-
-      return `
-        <div class="card">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="font-size:24px;width:40px;height:40px;background:${cat.color}20;border-radius:10px;display:flex;align-items:center;justify-content:center;">
-                ${cat.icon}
-              </div>
-              <div>
-                <div style="font-size:13px;font-weight:600;">${cat.label}</div>
-                <div style="font-size:10px;color:var(--text3);">${b.period === 'monthly' ? 'ماهانه' : b.period === 'weekly' ? 'هفتگی' : 'سالانه'}</div>
-              </div>
-            </div>
-            <button class="tx-delete" onclick="deleteBudget('${b.id}')" style="opacity:0.6;" title="حذف">🗑️</button>
-          </div>
-          
-          <div style="margin-bottom:8px;">
-            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;">
-              <span style="color:var(--text2);">مصرف شده: ${fmt(spent)} ت</span>
-              <span style="color:var(--text2);">بودجه: ${fmt(b.amount)} ت</span>
-            </div>
-            <div class="budget-card-progress">
-              <div class="budget-card-bar" style="width:${percent}%;background:${percent >= 100 ? 'var(--red)' : percent >= 80 ? 'var(--yellow)' : 'var(--green)'};"></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;">
-              <span style="font-weight:600;">${percent.toFixed(0)}%</span>
-              <span style="color:${remaining >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:600;">
-                باقیمانده: ${fmt(Math.abs(remaining))} ت
-              </span>
-            </div>
-          </div>
-
-          ${percent >= 80 ? `<div class="budget-alert ${alertClass}">${alertIcon} ${alertText}</div>` : ''}
-        </div>
-      `;
-    }).join('');
-
-    const totalRemaining = totalBudget - totalSpent;
-    document.getElementById('totalBudget').textContent = fmt(totalBudget);
-    document.getElementById('budgetCount').textContent = `${budgets.length} بودجه فعال`;
-    document.getElementById('totalSpent').textContent = fmt(totalSpent);
-    document.getElementById('spentPercent').textContent = totalBudget > 0 ? `${((totalSpent/totalBudget)*100).toFixed(0)}%` : '0%';
-    document.getElementById('totalRemaining').textContent = fmt(Math.abs(totalRemaining));
-    document.getElementById('remainingPercent').textContent = totalBudget > 0 ? `${((totalRemaining/totalBudget)*100).toFixed(0)}%` : '0%';
-
-    document.getElementById('budgetCards').innerHTML = budgetCardsHTML || '<div class="empty-state-big"><div class="empty-state-icon">🎯</div><div class="empty-state-text">هنوز بودجه‌ای تعریف نشده است</div><button class="btn btn-primary" onclick="openBudgetModal()">➕ ایجاد بودجه</button></div>';
-  }
-
-  // ============ RENDER DASHBOARD ============
-  function renderDashboard() {
-    // Current date
-    document.getElementById('currentDate').textContent = formatPersianDate();
-
-    // Welcome card
-    const hasData = transactions.length > 0;
-    if (!settings.hasSeenWelcome && !hasData) {
-      document.getElementById('welcomeSection').innerHTML = `
-        <div class="welcome-card">
-          <div class="welcome-title">👋 به پول‌یار خوش آمدید!</div>
-          <div class="welcome-text">برای شروع، اولین درآمد یا هزینه خود را ثبت کنید و از امکانات برنامه لذت ببرید.</div>
-          <div style="display:flex;gap:8px;">
-            <button class="btn" onclick="openModal('income')" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.3);">➕ ثبت درآمد</button>
-            <button class="btn" onclick="loadSampleData();settings.hasSeenWelcome=true;saveData();renderAll();" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.3);">📥 داده نمونه</button>
-          </div>
-        </div>
-      `;
-    } else {
+  // ============ RENDER WELCOME ============
+  function renderWelcome() {
+    if (transactions.length > 0 || settings.hasSeenWelcome) {
       document.getElementById('welcomeSection').innerHTML = '';
+      return;
     }
 
-    // Stats cards
-    const thisMonth = getJalaliMonth();
-    const lastMonth = getJalaliMonth(-1);
-    
-    const income = sumType(thisMonth, 'income');
-    const expense = sumType(thisMonth, 'expense');
-    const balance = income - expense;
-    const savings = income > 0 ? ((income - expense) / income * 100).toFixed(1) : 0;
+    document.getElementById('welcomeSection').innerHTML = `
+      <div class="welcome-card">
+        <div class="welcome-title">👋 به پول‌یار خوش آمدید!</div>
+        <div class="welcome-text">
+          برنامه مدیریت مالی شخصی شما آماده است. برای شروع می‌توانید اولین تراکنش خود را ثبت کنید
+          یا از داده‌های نمونه استفاده کنید.
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.3);" 
+            onclick="settings.hasSeenWelcome=true;saveData();renderWelcome();">
+            فهمیدم ✓
+          </button>
+          <button class="btn" style="background:white;color:var(--accent);" onclick="loadSampleData()">
+            📥 بارگذاری داده نمونه
+          </button>
+        </div>
+      </div>
+    `;
+  }
 
-    const lastIncome = sumType(lastMonth, 'income');
-    const lastExpense = sumType(lastMonth, 'expense');
-    
-    const incomeChange = lastIncome > 0 ? (((income - lastIncome) / lastIncome) * 100).toFixed(1) : 0;
-    const expenseChange = lastExpense > 0 ? (((expense - lastExpense) / lastExpense) * 100).toFixed(1) : 0;
+  // ============ RENDER STATS ============
+  function renderStats() {
+    const thisM = getJalaliMonth(0);
+    const lastM = getJalaliMonth(-1);
+    const inc = sumType(thisM, 'income');
+    const exp = sumType(thisM, 'expense');
+    const bal = inc - exp;
+    const pInc = sumType(lastM, 'income');
+    const pExp = sumType(lastM, 'expense');
+    const incCh = pInc ? Math.round(((inc - pInc) / pInc) * 100) : 0;
+    const expCh = pExp ? Math.round(((exp - pExp) / pExp) * 100) : 0;
+    const totalBal = sumType(transactions, 'income') - sumType(transactions, 'expense');
 
     document.getElementById('statsCards').innerHTML = `
       <div class="stat-card">
         <div class="stat-header">
           <div class="stat-icon income">💵</div>
+          <span class="stat-change ${incCh >= 0 ? 'up' : 'down'}">${incCh >= 0 ? '▲' : '▼'} ${Math.abs(incCh)}%</span>
         </div>
-        <div class="stat-label">درآمد ماه جاری</div>
-        <div class="stat-value">${fmt(income)}</div>
-        <div class="stat-change ${incomeChange >= 0 ? 'up' : 'down'}">
-          ${incomeChange >= 0 ? '📈' : '📉'} ${Math.abs(incomeChange)}% نسبت به ماه قبل
-        </div>
+        <div class="stat-label">درآمد ماهانه</div>
+        <div class="stat-value" style="color:var(--green);">${fmt(inc)}</div>
+        ${miniChartHTML(thisM, 'income')}
       </div>
-
       <div class="stat-card">
         <div class="stat-header">
           <div class="stat-icon expense">🔻</div>
+          <span class="stat-change ${expCh <= 0 ? 'up' : 'down'}">${expCh > 0 ? '▲' : '▼'} ${Math.abs(expCh)}%</span>
         </div>
-        <div class="stat-label">هزینه ماه جاری</div>
-        <div class="stat-value">${fmt(expense)}</div>
-        <div class="stat-change ${expenseChange <= 0 ? 'up' : 'down'}">
-          ${expenseChange >= 0 ? '📈' : '📉'} ${Math.abs(expenseChange)}% نسبت به ماه قبل
-        </div>
+        <div class="stat-label">هزینه ماهانه</div>
+        <div class="stat-value" style="color:var(--red);">${fmt(exp)}</div>
+        ${miniChartHTML(thisM, 'expense')}
       </div>
-
       <div class="stat-card">
         <div class="stat-header">
-          <div class="stat-icon balance">💰</div>
+          <div class="stat-icon balance">💎</div>
         </div>
-        <div class="stat-label">موجودی</div>
-        <div class="stat-value" style="color:${balance >= 0 ? 'var(--green)' : 'var(--red)'}">${balance >= 0 ? '+' : ''}${fmt(balance)}</div>
-        <div class="stat-change ${balance >= 0 ? 'up' : 'down'}">
-          ${balance >= 0 ? '✅' : '⚠️'} ${balance >= 0 ? 'مثبت' : 'منفی'}
-        </div>
+        <div class="stat-label">تراز ماهانه</div>
+        <div class="stat-value" style="color:${bal >= 0 ? 'var(--green)' : 'var(--red)'};">${fmt(bal)}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px;">این ماه</div>
       </div>
-
       <div class="stat-card">
         <div class="stat-header">
-          <div class="stat-icon savings">💎</div>
+          <div class="stat-icon savings">🏦</div>
         </div>
-        <div class="stat-label">نرخ پس‌انداز</div>
-        <div class="stat-value">${savings}%</div>
-        <div class="stat-change ${savings >= 20 ? 'up' : 'down'}">
-          ${savings >= 20 ? '🎉' : '📊'} ${savings >= 20 ? 'عالی' : 'قابل بهبود'}
-        </div>
+        <div class="stat-label">کل موجودی</div>
+        <div class="stat-value" style="color:${totalBal >= 0 ? 'var(--accent)' : 'var(--red)'};">${fmt(totalBal)}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px;">از ${fmt(transactions.length)} تراکنش</div>
       </div>
     `;
-
-    // Bar chart
-    renderBarChart();
-
-    // Donut chart
-    renderDonutChart();
-
-    // Recent transactions
-    const recent = transactions.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
-    document.getElementById('recentTx').innerHTML = recent.length
-      ? recent.map(t => {
-          const cat = categories[t.category] || categories.other;
-          return `
-            <div class="tx-item">
-              <div class="tx-right">
-                <div class="tx-icon" style="background:${cat.color}20">${cat.icon}</div>
-                <div>
-                  <div class="tx-name">${t.title}</div>
-                  <div class="tx-cat">${cat.label} • ${fmtDate(t.date)}</div>
-                </div>
-              </div>
-              <div style="display:flex;align-items:center;gap:6px;">
-                <div class="tx-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</div>
-                <button class="tx-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>
-              </div>
-            </div>
-          `;
-        }).join('')
-      : '<div class="empty-state">تراکنشی ثبت نشده است</div>';
-
-    // Dashboard debts
-    renderDashboardDebts();
   }
 
-  function renderBarChart() {
-    const container = document.getElementById('barChart');
-    let data = [];
-
-    if (barView === 'monthly') {
-      const jalali = getPersianDate();
-      for (let i = 5; i >= 0; i--) {
-        const monthData = getJalaliMonth(-i);
-        const targetMonth = ((jalali.month - i - 1 + 12) % 12) + 1;
-        data.push({
-          label: persianMonths[targetMonth - 1].substr(0, 3),
-          income: sumType(monthData, 'income'),
-          expense: sumType(monthData, 'expense')
-        });
-      }
-    } else {
-      for (let i = 6; i >= 0; i--) {
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - i * 7);
-        const endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + 6);
-        
-        const weekTx = transactions.filter(t => {
-          const d = new Date(t.date);
-          return d >= startDate && d <= endDate;
-        });
-        
-        const jalaliStart = getPersianDate(startDate);
-        data.push({
-          label: `${jalaliStart.day}/${jalaliStart.month}`,
-          income: sumType(weekTx, 'income'),
-          expense: sumType(weekTx, 'expense')
-        });
-      }
-    }
-
-    const maxVal = Math.max(...data.flatMap(d => [d.income, d.expense])) || 1000000;
-
-    container.innerHTML = data.map(d => `
-      <div class="bar-group">
-        <div class="bar-pair">
-          <div class="bar income-bar" style="height:${(d.income / maxVal) * 100}%" title="درآمد: ${fmt(d.income)}"></div>
-          <div class="bar expense-bar" style="height:${(d.expense / maxVal) * 100}%" title="هزینه: ${fmt(d.expense)}"></div>
-        </div>
-        <div class="bar-label">${d.label}</div>
-      </div>
-    `).join('');
+  function miniChartHTML(data, type) {
+    const days = {};
+    data.filter(t => t.type === type).forEach(t => {
+      const d = new Date(t.date).getDate();
+      days[d] = (days[d] || 0) + t.amount;
+    });
+    const vals = Object.values(days);
+    if (!vals.length) return '<div class="mini-chart"></div>';
+    const max = Math.max(...vals);
+    const color = type === 'income' ? 'var(--green)' : 'var(--red)';
+    return '<div class="mini-chart">' + vals.slice(-8).map(v =>
+      `<div class="mini-bar" style="height:${Math.max(3,(v/max)*100)}%;background:${color};"></div>`
+    ).join('') + '</div>';
   }
 
-  function setBarView(view, btn) {
-    barView = view;
+  // ============ BAR CHART ============
+  function setBarView(v, btn) {
+    barView = v;
     document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderBarChart();
   }
 
-  function renderDonutChart() {
-    const container = document.getElementById('donutChart');
-    const thisMonth = getJalaliMonth();
-    const expenses = thisMonth.filter(t => t.type === 'expense');
-    
-    if (!expenses.length) {
-      container.innerHTML = '<div class="empty-state">هزینه‌ای ثبت نشده است</div>';
-      return;
+  function renderBarChart() {
+    const ct = document.getElementById('barChart');
+    let groups = [];
+
+    if (barView === 'monthly') {
+      const currentJalali = getPersianDate(new Date());
+      for (let i = 5; i >= 0; i--) {
+        const targetMonth = currentJalali.month - i;
+        const targetYear = currentJalali.year + Math.floor((targetMonth - 1) / 12);
+        const finalMonth = ((targetMonth - 1 + 12) % 12) + 1;
+        
+        const mTx = transactions.filter(t => {
+          const tJalali = getPersianDate(new Date(t.date));
+          return tJalali.month === finalMonth && tJalali.year === targetYear;
+        });
+        
+        groups.push({
+          label: persianMonths[finalMonth - 1].substring(0, 3),
+          income: sumType(mTx, 'income'),
+          expense: sumType(mTx, 'expense')
+        });
+      }
+    } else {
+      for (let i = 3; i >= 0; i--) {
+        const start = new Date();
+        start.setDate(start.getDate() - (i + 1) * 7);
+        const end = new Date();
+        end.setDate(end.getDate() - i * 7);
+        const wTx = transactions.filter(t => {
+          const d = new Date(t.date);
+          return d >= start && d < end;
+        });
+        groups.push({
+          label: `هفته ${4-i}`,
+          income: sumType(wTx, 'income'),
+          expense: sumType(wTx, 'expense')
+        });
+      }
     }
 
+    const max = Math.max(...groups.map(g => Math.max(g.income, g.expense)), 1);
+    ct.innerHTML = groups.map(g => `
+      <div class="bar-group">
+        <div class="bar-pair">
+          <div class="bar income-bar" style="height:${Math.max(3,(g.income/max)*130)}px;" title="درآمد: ${fmt(g.income)}"></div>
+          <div class="bar expense-bar" style="height:${Math.max(3,(g.expense/max)*130)}px;" title="هزینه: ${fmt(g.expense)}"></div>
+        </div>
+        <div class="bar-label">${g.label}</div>
+      </div>
+    `).join('');
+  }
+
+  // ============ DONUT ============
+  function renderDonut() {
+    const expenses = getJalaliMonth(0).filter(t => t.type === 'expense');
     const catTotals = {};
     expenses.forEach(t => {
       catTotals[t.category] = (catTotals[t.category] || 0) + t.amount;
     });
+    const total = Object.values(catTotals).reduce((s, v) => s + v, 0) || 1;
+    const sorted = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
 
-    const total = Object.values(catTotals).reduce((a, b) => a + b, 0);
-    const sortedCats = Object.entries(catTotals)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
+    const r = 52, circ = 2 * Math.PI * r;
+    let offset = 0;
 
-    let currentAngle = 0;
-    const radius = 55;
-    const centerX = 55;
-    const centerY = 55;
-
-    const paths = sortedCats.map(([key, amount]) => {
-      const cat = categories[key] || categories.other;
-      const percent = (amount / total) * 100;
-      const angle = (percent / 100) * 360;
-      
-      const startAngle = currentAngle;
-      const endAngle = currentAngle + angle;
-      currentAngle = endAngle;
-
-      const startRad = (startAngle - 90) * Math.PI / 180;
-      const endRad = (endAngle - 90) * Math.PI / 180;
-
-      const x1 = centerX + radius * Math.cos(startRad);
-      const y1 = centerY + radius * Math.sin(startRad);
-      const x2 = centerX + radius * Math.cos(endRad);
-      const y2 = centerY + radius * Math.sin(endRad);
-
-      const largeArc = angle > 180 ? 1 : 0;
-
-      return `<path d="M ${centerX},${centerY} L ${x1},${y1} A ${radius},${radius} 0 ${largeArc},1 ${x2},${y2} Z" 
-        fill="${cat.color}" opacity="0.8" stroke="var(--bg)" stroke-width="2"/>`;
+    const circles = sorted.map(([cat, val]) => {
+      const dash = (val / total) * circ;
+      const catData = categories[cat] || categories.other;
+      const c = `<circle cx="65" cy="65" r="${r}" fill="none" stroke="${catData.color}"
+        stroke-width="14" stroke-dasharray="${dash} ${circ - dash}" stroke-dashoffset="${-offset}"
+        style="transition:all 0.5s;" />`;
+      offset += dash;
+      return c;
+    });
+    const legend = sorted.slice(0, 6).map(([cat, val]) => {
+      const catData = categories[cat] || categories.other;
+      return `
+        <div class="legend-item">
+          <div class="legend-right">
+            <span class="legend-color" style="background:${catData.color};"></span>
+            <span>${catData.icon} ${catData.label}</span>
+          </div>
+          <span style="color:var(--text2);direction:ltr;font-size:10px;">${Math.round((val/total)*100)}%</span>
+        </div>
+      `;
     }).join('');
 
-    container.innerHTML = `
+    if (!sorted.length) {
+      document.getElementById('donutChart').innerHTML = '<div class="empty-state">هزینه‌ای ثبت نشده است</div>';
+      return;
+    }
+
+    document.getElementById('donutChart').innerHTML = `
       <div class="donut-center">
-        <svg width="110" height="110" viewBox="0 0 110 110">
-          ${paths}
-          <circle cx="55" cy="55" r="30" fill="var(--glass)" stroke="var(--glass-border)" stroke-width="1"/>
+        <svg width="130" height="130" viewBox="0 0 130 130">
+          ${circles.join('')}
         </svg>
         <div class="donut-total">
-          <div class="donut-total-label">مجموع هزینه</div>
+          <div class="donut-total-label">کل هزینه</div>
           <div class="donut-total-value">${fmt(total)}</div>
         </div>
       </div>
-      <div class="donut-legend">
-        ${sortedCats.map(([key, amount]) => {
-          const cat = categories[key] || categories.other;
-          const percent = ((amount / total) * 100).toFixed(1);
-          return `
-            <div class="legend-item">
-              <div class="legend-right">
-                <div class="legend-color" style="background:${cat.color}"></div>
-                <span>${cat.icon} ${cat.label}</span>
-              </div>
-              <span style="font-weight:600;">${percent}%</span>
-            </div>
-          `;
-        }).join('')}
-      </div>
+      <div class="donut-legend">${legend}</div>
     `;
   }
 
-  // ============ RENDER TRANSACTIONS ============
-  function filterTx(type, btn) {
-    txFilter = type;
+  // ============ RECENT TRANSACTIONS ============
+  function renderRecentTx() {
+    const recent = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
+    
+    if (!recent.length) {
+      document.getElementById('recentTx').innerHTML = '<div class="empty-state">تراکنشی وجود ندارد</div>';
+      return;
+    }
+
+    document.getElementById('recentTx').innerHTML = recent.map(t => {
+      const cat = categories[t.category] || categories.other;
+      return `
+        <div class="tx-item">
+          <div class="tx-right">
+            <div class="tx-icon" style="background:${cat.color}20;">${cat.icon}</div>
+            <div>
+              <div class="tx-name">${t.title}</div>
+              <div class="tx-cat">${cat.label} • ${fmtDate(t.date)}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="tx-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</div>
+            <button class="tx-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ============ ALL TRANSACTIONS ============
+  function filterTx(filter, btn) {
+    txFilter = filter;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderAllTx();
@@ -3115,280 +3221,281 @@
 
   function renderAllTx() {
     const search = document.getElementById('txSearch').value.toLowerCase();
-    let filtered = transactions.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+    let filtered = transactions.filter(t => {
+      const matchSearch = t.title.toLowerCase().includes(search) || 
+                         (categories[t.category]?.label || '').toLowerCase().includes(search);
+      const matchFilter = txFilter === 'all' || t.type === txFilter;
+      return matchSearch && matchFilter;
+    });
 
-    if (txFilter !== 'all') {
-      filtered = filtered.filter(t => t.type === txFilter);
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (!filtered.length) {
+      document.getElementById('allTx').innerHTML = '<div class="empty-state">تراکنشی یافت نشد</div>';
+      return;
     }
 
-    if (search) {
-      filtered = filtered.filter(t => 
-        t.title.toLowerCase().includes(search) ||
-        (categories[t.category]?.label || '').toLowerCase().includes(search)
-      );
-    }
-
-    document.getElementById('allTx').innerHTML = filtered.length
-      ? filtered.map(t => {
-          const cat = categories[t.category] || categories.other;
-          return `
-            <div class="tx-item">
-              <div class="tx-right">
-                <div class="tx-icon" style="background:${cat.color}20">${cat.icon}</div>
-                <div>
-                  <div class="tx-name">${t.title}</div>
-                  <div class="tx-cat">${cat.label} • ${fmtDate(t.date)}</div>
-                </div>
-              </div>
-              <div style="display:flex;align-items:center;gap:6px;">
-                <div class="tx-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</div>
-                <button class="tx-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>
-              </div>
+    document.getElementById('allTx').innerHTML = filtered.map(t => {
+      const cat = categories[t.category] || categories.other;
+      return `
+        <div class="tx-item">
+          <div class="tx-right">
+            <div class="tx-icon" style="background:${cat.color}20;">${cat.icon}</div>
+            <div>
+              <div class="tx-name">${t.title}</div>
+              <div class="tx-cat">${cat.label} • ${fmtDate(t.date)}</div>
             </div>
-          `;
-        }).join('')
-      : '<div class="empty-state">تراکنشی یافت نشد</div>';
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="tx-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</div>
+            <button class="tx-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
-  // ============ RENDER ANALYTICS ============
+  // ============ BUDGETS ============
+  function renderBudgets() {
+    let totalBudgetAmount = budgets.reduce((s, b) => s + b.amount, 0);
+    let totalSpent = 0;
+
+    const cards = budgets.map(b => {
+      const spent = getBudgetSpent(b);
+      totalSpent += spent;
+      
+      const percent = Math.min((spent / b.amount) * 100, 100);
+      const remaining = Math.max(b.amount - spent, 0);
+      
+      let alertClass = '';
+      let alertIcon = '';
+      let alertText = '';
+      
+      if (percent >= 100) {
+        alertClass = 'danger';
+        alertIcon = '🚨';
+        alertText = 'بودجه تمام شد!';
+      } else if (percent >= b.alertThreshold) {
+        alertClass = 'danger';
+        alertIcon = '⚠️';
+        alertText = `${Math.round(100 - percent)}% باقی مانده`;
+      } else if (percent >= 50) {
+        alertClass = '';
+        alertIcon = '💡';
+        alertText = `${Math.round(100 - percent)}% باقی مانده`;
+      } else {
+        alertClass = 'success';
+        alertIcon = '✅';
+        alertText = 'وضعیت خوب';
+      }
+
+      let budgetName = '';
+      let budgetIcon = '🎯';
+      
+      if (b.type === 'category' && b.category) {
+        const cat = categories[b.category] || categories.other;
+        budgetName = cat.label;
+        budgetIcon = cat.icon;
+      } else {
+        budgetName = b.name || 'بودجه';
+      }
+
+      return `
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:40px;height:40px;border-radius:10px;background:var(--accent-glass);display:flex;align-items:center;justify-content:center;font-size:20px;">
+                ${budgetIcon}
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:600;">${budgetName}</div>
+                <div style="font-size:10px;color:var(--text3);">${b.period === 'monthly' ? 'ماهانه' : b.period === 'weekly' ? 'هفتگی' : b.period === 'yearly' ? 'سالانه' : 'سفارشی'}</div>
+              </div>
+            </div>
+            <button class="tx-delete" onclick="deleteBudget('${b.id}')" style="opacity:0.5;">🗑️</button>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+            <span style="color:var(--text2);">مصرف شده</span>
+            <span style="font-weight:600;">${fmt(spent)} از ${fmt(b.amount)}</span>
+          </div>
+          <div class="budget-card-progress">
+            <div class="budget-card-bar" style="width:${percent}%;background:${percent >= 80 ? 'var(--red)' : percent >= 60 ? 'var(--yellow)' : 'var(--green)'};"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;">
+            <span style="color:var(--text3);">باقیمانده</span>
+            <span style="font-weight:600;color:var(--green);">${fmt(remaining)}</span>
+          </div>
+          <div class="budget-alert ${alertClass}">${alertIcon} ${alertText}</div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('totalBudget').textContent = fmt(totalBudgetAmount);
+    document.getElementById('budgetCount').textContent = `${budgets.length} بودجه فعال`;
+    document.getElementById('totalSpent').textContent = fmt(totalSpent);
+    document.getElementById('spentPercent').textContent = totalBudgetAmount ? `${Math.round((totalSpent/totalBudgetAmount)*100)}%` : '0%';
+    document.getElementById('totalRemaining').textContent = fmt(Math.max(totalBudgetAmount - totalSpent, 0));
+    document.getElementById('remainingPercent').textContent = totalBudgetAmount ? `${Math.round(((totalBudgetAmount-totalSpent)/totalBudgetAmount)*100)}%` : '0%';
+
+    document.getElementById('budgetCards').innerHTML = budgets.length 
+      ? cards 
+      : '<div class="empty-state-big"><div class="empty-state-icon">🎯</div><div class="empty-state-text">هنوز بودجه‌ای تعریف نکرده‌اید</div><button class="btn btn-primary" onclick="openBudgetModal()">➕ بودجه جدید</button></div>';
+  }
+
+  // ============ ANALYTICS ============
   function renderAnalytics() {
-    const thisMonth = getJalaliMonth();
-    const lastMonth = getJalaliMonth(-1);
-
-    const income = sumType(thisMonth, 'income');
-    const expense = sumType(thisMonth, 'expense');
-    const lastIncome = sumType(lastMonth, 'income');
-    const lastExpense = sumType(lastMonth, 'expense');
-
-    // Trend analysis
-    const incomeChange = lastIncome > 0 ? (((income - lastIncome) / lastIncome) * 100).toFixed(1) : 0;
-    const expenseChange = lastExpense > 0 ? (((expense - lastExpense) / lastExpense) * 100).toFixed(1) : 0;
-    const incomeTrend = incomeChange > 0 ? 'up' : incomeChange < 0 ? 'down' : 'neutral';
-    const expenseTrend = expenseChange > 0 ? 'up' : expenseChange < 0 ? 'down' : 'neutral';
+    const thisM = getJalaliMonth(0);
+    const lastM = getJalaliMonth(-1);
+    const inc = sumType(thisM, 'income');
+    const exp = sumType(thisM, 'expense');
+    const savings = inc - exp;
+    const pInc = sumType(lastM, 'income');
+    const pExp = sumType(lastM, 'expense');
+    const incChange = pInc ? ((inc - pInc) / pInc) * 100 : 0;
+    const expChange = pExp ? ((exp - pExp) / pExp) * 100 : 0;
 
     document.getElementById('trendAnalysis').innerHTML = `
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
-        <div class="trend-indicator ${incomeTrend}">
-          ${incomeTrend === 'up' ? '📈' : incomeTrend === 'down' ? '📉' : '➡️'}
-          درآمد: ${incomeChange >= 0 ? '+' : ''}${incomeChange}%
+        <div style="flex:1;min-width:200px;background:var(--glass2);padding:12px;border-radius:10px;">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">درآمد این ماه</div>
+          <div style="font-size:18px;font-weight:700;color:var(--green);margin-bottom:4px;">${fmt(inc)}</div>
+          <div class="trend-indicator ${incChange >= 0 ? 'up' : 'down'}">
+            ${incChange >= 0 ? '▲' : '▼'} ${Math.abs(incChange).toFixed(1)}% نسبت به ماه قبل
+          </div>
         </div>
-        <div class="trend-indicator ${expenseTrend}">
-          ${expenseTrend === 'up' ? '📈' : expenseTrend === 'down' ? '📉' : '➡️'}
-          هزینه: ${expenseChange >= 0 ? '+' : ''}${expenseChange}%
+        <div style="flex:1;min-width:200px;background:var(--glass2);padding:12px;border-radius:10px;">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">هزینه این ماه</div>
+          <div style="font-size:18px;font-weight:700;color:var(--red);margin-bottom:4px;">${fmt(exp)}</div>
+          <div class="trend-indicator ${expChange <= 0 ? 'up' : 'down'}">
+            ${expChange > 0 ? '▲' : '▼'} ${Math.abs(expChange).toFixed(1)}% نسبت به ماه قبل
+          </div>
         </div>
       </div>
-      <p style="font-size:11px;color:var(--text2);margin-top:12px;">
-        ${incomeTrend === 'up' ? '✅ درآمد شما در حال رشد است.' : incomeTrend === 'down' ? '⚠️ درآمد شما کاهش یافته است.' : '➡️ درآمد شما ثابت است.'}
-        ${expenseTrend === 'down' ? ' عالی! هزینه‌ها کاهش یافته است.' : expenseTrend === 'up' ? ' توجه: هزینه‌ها افزایش یافته است.' : ''}
-      </p>
     `;
 
-    // Month comparison
     document.getElementById('monthComparison').innerHTML = `
       <div class="comparison-row">
-        <span>درآمد ماه جاری</span>
-        <span style="font-weight:600;color:var(--green);">${fmt(income)}</span>
+        <span style="color:var(--text2);">درآمد</span>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <span style="font-size:12px;">${fmt(pInc)}</span>
+          <span style="font-size:12px;color:var(--text3);">→</span>
+          <span style="font-size:12px;font-weight:600;color:var(--green);">${fmt(inc)}</span>
+        </div>
       </div>
       <div class="comparison-row">
-        <span>درآمد ماه گذشته</span>
-        <span style="font-weight:600;">${fmt(lastIncome)}</span>
+        <span style="color:var(--text2);">هزینه</span>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <span style="font-size:12px;">${fmt(pExp)}</span>
+          <span style="font-size:12px;color:var(--text3);">→</span>
+          <span style="font-size:12px;font-weight:600;color:var(--red);">${fmt(exp)}</span>
+        </div>
       </div>
       <div class="comparison-row">
-        <span>هزینه ماه جاری</span>
-        <span style="font-weight:600;color:var(--red);">${fmt(expense)}</span>
-      </div>
-      <div class="comparison-row">
-        <span>هزینه ماه گذشته</span>
-        <span style="font-weight:600;">${fmt(lastExpense)}</span>
-      </div>
-      <div class="comparison-row">
-        <span>تفاوت موجودی</span>
-        <span style="font-weight:600;color:${(income - expense) - (lastIncome - lastExpense) >= 0 ? 'var(--green)' : 'var(--red)'};">
-          ${((income - expense) - (lastIncome - lastExpense) >= 0 ? '+' : '')}${fmt((income - expense) - (lastIncome - lastExpense))}
-        </span>
+        <span style="color:var(--text2);">پس‌انداز</span>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <span style="font-size:12px;">${fmt(pInc - pExp)}</span>
+          <span style="font-size:12px;color:var(--text3);">→</span>
+          <span style="font-size:12px;font-weight:600;color:${savings >= 0 ? 'var(--green)' : 'var(--red)'};">${fmt(savings)}</span>
+        </div>
       </div>
     `;
 
     // Heatmap
-    const heatmapData = [];
+    const heatData = {};
     for (let i = 29; i >= 0; i--) {
       const date = daysAgo(i);
-      const dayExpense = transactions.filter(t => t.type === 'expense' && t.date === date)
+      const dayExp = transactions.filter(t => t.date === date && t.type === 'expense')
         .reduce((s, t) => s + t.amount, 0);
-      heatmapData.push(dayExpense);
+      heatData[date] = dayExp;
     }
-    const maxHeat = Math.max(...heatmapData, 1);
-    document.getElementById('heatmap').innerHTML = heatmapData.map(val => {
+    const maxHeat = Math.max(...Object.values(heatData), 1);
+    
+    document.getElementById('heatmap').innerHTML = Object.entries(heatData).map(([date, val]) => {
       const intensity = val / maxHeat;
-      const color = intensity === 0 ? 'var(--glass2)' : `rgba(229,80,57,${0.2 + intensity * 0.8})`;
-      return `<div class="heat-cell" style="background:${color}" title="${fmt(val)} تومان"></div>`;
+      const color = intensity === 0 ? 'var(--glass2)' : 
+        `rgba(229,80,57,${0.2 + intensity * 0.8})`;
+      return `<div class="heat-cell" style="background:${color};" title="${fmtDate(date)}: ${fmt(val)}"></div>`;
     }).join('');
 
-    // Savings ratio
-    const savingsPercent = income > 0 ? ((income - expense) / income * 100).toFixed(1) : 0;
-    const circumference = 2 * Math.PI * 45;
-    const offset = circumference - (savingsPercent / 100) * circumference;
-    
-    document.getElementById('savingsRing').style.strokeDashoffset = offset;
-    document.getElementById('savingsPercent').textContent = savingsPercent + '%';
-    document.getElementById('anIncome').textContent = fmt(income) + ' ت';
-    document.getElementById('anExpense').textContent = fmt(expense) + ' ت';
-    document.getElementById('anSavings').textContent = fmt(income - expense) + ' ت';
+    // Savings Ring
+    const savingsPercent = inc ? Math.round((savings / inc) * 100) : 0;
+    const ringOffset = 283 - (Math.max(savingsPercent, 0) / 100) * 283;
+    document.getElementById('savingsRing').style.strokeDashoffset = ringOffset;
+    document.getElementById('savingsPercent').textContent = `${Math.max(savingsPercent, 0)}%`;
+    document.getElementById('anIncome').textContent = fmt(inc);
+    document.getElementById('anExpense').textContent = fmt(exp);
+    document.getElementById('anSavings').textContent = fmt(Math.max(savings, 0));
 
-    // Category comparison bars
-    const expenseCats = {};
-    thisMonth.filter(t => t.type === 'expense').forEach(t => {
-      expenseCats[t.category] = (expenseCats[t.category] || 0) + t.amount;
+    // Category Bars
+    const catTotals = {};
+    thisM.filter(t => t.type === 'expense').forEach(t => {
+      catTotals[t.category] = (catTotals[t.category] || 0) + t.amount;
     });
+    const sorted = Object.entries(catTotals).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    const maxCat = sorted[0]?.[1] || 1;
 
-    const totalExpense = Object.values(expenseCats).reduce((a, b) => a + b, 0);
-    const sortedExpenseCats = Object.entries(expenseCats).sort((a, b) => b[1] - a[1]).slice(0, 8);
-
-    document.getElementById('horizontalBars').innerHTML = sortedExpenseCats.length
-      ? sortedExpenseCats.map(([key, amount]) => {
-          const cat = categories[key] || categories.other;
-          const percent = totalExpense > 0 ? ((amount / totalExpense) * 100).toFixed(1) : 0;
-          return `
-            <div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <span style="font-size:11px;">${cat.icon} ${cat.label}</span>
-                <span style="font-size:11px;font-weight:600;">${fmt(amount)} (${percent}%)</span>
-              </div>
-              <div style="height:8px;background:var(--glass2);border-radius:4px;overflow:hidden;">
-                <div style="height:100%;background:${cat.color};width:${percent}%;transition:width 0.5s;"></div>
-              </div>
+    document.getElementById('horizontalBars').innerHTML = sorted.length
+      ? sorted.map(([cat, val]) => {
+        const catData = categories[cat] || categories.other;
+        const percent = (val / maxCat) * 100;
+        return `
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;">
+              <span>${catData.icon} ${catData.label}</span>
+              <span style="font-weight:600;">${fmt(val)}</span>
             </div>
-          `;
-        }).join('')
+            <div style="height:6px;background:var(--glass2);border-radius:3px;overflow:hidden;">
+              <div style="height:100%;background:${catData.color};width:${percent}%;transition:width 0.5s;"></div>
+            </div>
+          </div>
+        `;
+      }).join('')
       : '<div class="empty-state">داده‌ای برای نمایش وجود ندارد</div>';
 
     // Predictions
-    const avgIncome = (income + lastIncome) / 2;
-    const avgExpense = (expense + lastExpense) / 2;
-    const predictedBalance = avgIncome - avgExpense;
+    const avgIncome = (inc + pInc) / 2;
+    const avgExpense = (exp + pExp) / 2;
+    const predictedSavings = avgIncome - avgExpense;
 
     document.getElementById('predictions').innerHTML = `
-      <p style="font-size:11px;color:var(--text2);line-height:1.6;">
-        بر اساس میانگین دو ماه اخیر، پیش‌بینی می‌شود در ماه آینده:<br><br>
-        💵 درآمد: <strong>${fmt(Math.round(avgIncome))}</strong> تومان<br>
-        💸 هزینه: <strong>${fmt(Math.round(avgExpense))}</strong> تومان<br>
-        💰 موجودی: <strong style="color:${predictedBalance >= 0 ? 'var(--green)' : 'var(--red)'};">${fmt(Math.round(predictedBalance))}</strong> تومان<br><br>
-        ${predictedBalance >= 0 ? '✅ روند مالی شما مثبت است!' : '⚠️ توصیه می‌شود هزینه‌ها را کنترل کنید.'}
-      </p>
+      <div style="background:var(--glass2);padding:12px;border-radius:10px;">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px;">
+          بر اساس میانگین ۲ ماه گذشته، پیش‌بینی می‌شود:
+        </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:150px;">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:2px;">درآمد احتمالی</div>
+            <div style="font-size:16px;font-weight:700;color:var(--green);">${fmt(Math.round(avgIncome))}</div>
+          </div>
+          <div style="flex:1;min-width:150px;">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:2px;">هزینه احتمالی</div>
+            <div style="font-size:16px;font-weight:700;color:var(--red);">${fmt(Math.round(avgExpense))}</div>
+          </div>
+          <div style="flex:1;min-width:150px;">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:2px;">پس‌انداز احتمالی</div>
+            <div style="font-size:16px;font-weight:700;color:${predictedSavings >= 0 ? 'var(--green)' : 'var(--red)'};">${fmt(Math.round(predictedSavings))}</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:10px;color:var(--text3);">
+          💡 این پیش‌بینی بر اساس الگوی هزینه‌کرد شما است و ممکن است با واقعیت متفاوت باشد.
+        </div>
+      </div>
     `;
-  }
-
-  // ============ RENDER SETTINGS ============
-  function renderSettings() {
-    document.getElementById('txCount').textContent = transactions.length;
-    document.getElementById('debtCount').textContent = debts.length;
-    document.getElementById('catCount').textContent = Object.keys(categories).length;
-  }
-
-  // ============ DATA MANAGEMENT ============
-  function loadSampleData() {
-    if (!confirm('این عمل داده‌های فعلی را پاک می‌کند. ادامه می‌دهید؟')) return;
-
-    transactions = [
-      { id: genId(), type: 'income', amount: 25000000, title: 'حقوق ماهانه', category: 'salary', date: daysAgo(5), note: '' },
-      { id: genId(), type: 'income', amount: 3000000, title: 'پروژه فریلنسری', category: 'freelance', date: daysAgo(10), note: '' },
-      { id: genId(), type: 'expense', amount: 5000000, title: 'خرید مواد غذایی', category: 'food', date: daysAgo(2), note: '' },
-      { id: genId(), type: 'expense', amount: 800000, title: 'بنزین', category: 'transport', date: daysAgo(4), note: '' },
-      { id: genId(), type: 'expense', amount: 2500000, title: 'خرید لباس', category: 'shopping', date: daysAgo(7), note: '' },
-      { id: genId(), type: 'expense', amount: 1200000, title: 'قبض برق', category: 'bills', date: daysAgo(3), note: '' },
-      { id: genId(), type: 'expense', amount: 900000, title: 'داروخانه', category: 'health', date: daysAgo(8), note: '' },
-      { id: genId(), type: 'expense', amount: 1500000, title: 'سینما و رستوران', category: 'fun', date: daysAgo(6), note: '' },
-    ];
-
-    debts = [
-      { id: genId(), type: 'debt', amount: 5000000, title: 'قرض برای خرید لپ‌تاپ', person: 'احمد رضایی', date: daysAgo(15), note: '', completed: false },
-      { id: genId(), type: 'credit', amount: 3000000, title: 'قرض به دوست', person: 'محمد محمدی', date: daysAgo(20), note: '', completed: false },
-    ];
-
-    budgets = [
-      { id: genId(), category: 'food', amount: 8000000, period: 'monthly' },
-      { id: genId(), category: 'transport', amount: 2000000, period: 'monthly' },
-      { id: genId(), category: 'fun', amount: 3000000, period: 'monthly' },
-    ];
-
-    settings.hasSeenWelcome = true;
-    saveData();
-    renderAll();
-    notify('✅ داده‌های نمونه بارگذاری شد');
-  }
-
-  function exportData() {
-    const data = {
-      transactions,
-      categories,
-      budgets,
-      debts,
-      settings,
-      exportDate: new Date().toISOString(),
-      version: '2.5'
-    };
-
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `poolyar-backup-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    notify('✅ فایل پشتیبان ایجاد شد');
-  }
-
-  function importData() {
-    const input = document.getElementById('fileInput');
-    input.onchange = e => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const data = JSON.parse(e.target.result);
-          
-          if (data.transactions) transactions = data.transactions;
-          if (data.categories) categories = data.categories;
-          if (data.budgets) budgets = data.budgets;
-          if (data.debts) debts = data.debts;
-          if (data.settings) settings = data.settings;
-
-          saveData();
-          renderAll();
-          notify('✅ داده‌ها با موفقیت وارد شد');
-        } catch (err) {
-          notify('❌ خطا در خواندن فایل');
-        }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-  }
-
-  function clearAllData() {
-    if (!confirm('⚠️ تمام داده‌ها پاک خواهند شد. آیا مطمئن هستید؟')) return;
-    if (!confirm('⚠️⚠️ این عمل غیرقابل بازگشت است!')) return;
-
-    transactions = [];
-    budgets = [];
-    debts = [];
-    categories = { ...defaultCategories };
-    settings = { currency: 'تومان', language: 'fa', hasSeenWelcome: false };
-
-    saveData();
-    renderAll();
-    notify('🗑️ تمام داده‌ها پاک شد');
   }
 
   // ============ RENDER ALL ============
   function renderAll() {
-    const activePage = document.querySelector('.page.active').id;
-
+    const activePage = document.querySelector('.page.active')?.id;
+    
+    document.getElementById('currentDate').textContent = formatPersianDate();
+    
     if (activePage === 'page-dashboard') {
-      renderDashboard();
+      renderWelcome();
+      renderStats();
+      renderBarChart();
+      renderDonut();
+      renderRecentTx();
+      renderQuickDebts();
     } else if (activePage === 'page-transactions') {
       renderAllTx();
     } else if (activePage === 'page-debts') {
@@ -3400,39 +3507,125 @@
     } else if (activePage === 'page-categories') {
       renderCategories();
     } else if (activePage === 'page-settings') {
-      renderSettings();
+      document.getElementById('txCount').textContent = transactions.length;
+      document.getElementById('debtCount').textContent = debts.length;
+      document.getElementById('catCount').textContent = Object.keys(categories).length;
     }
+  }
+
+  // ============ SAMPLE DATA ============
+  function loadSampleData() {
+    if (!confirm('آیا از بارگذاری داده‌های نمونه مطمئن هستید؟ این عمل داده‌های فعلی را پاک می‌کند.')) return;
+
+    transactions = [
+      { id: genId(), type: 'income', amount: 50000000, title: 'حقوق ماهانه', category: 'salary', date: daysAgo(5), note: 'حقوق بهمن ماه' },
+      { id: genId(), type: 'income', amount: 15000000, title: 'پروژه فریلنسری', category: 'freelance', date: daysAgo(10), note: 'طراحی سایت' },
+      { id: genId(), type: 'expense', amount: 8000000, title: 'خرید مواد غذایی', category: 'food', date: daysAgo(2), note: 'خرید ماهانه' },
+      { id: genId(), type: 'expense', amount: 3000000, title: 'بنزین و تاکسی', category: 'transport', date: daysAgo(1), note: '' },
+      { id: genId(), type: 'expense', amount: 5000000, title: 'لباس و کفش', category: 'shopping', date: daysAgo(7), note: 'خرید پاییزه' },
+      { id: genId(), type: 'expense', amount: 2500000, title: 'قبض برق و گاز', category: 'bills', date: daysAgo(15), note: 'قبوض دی ماه' },
+      { id: genId(), type: 'expense', amount: 1500000, title: 'داروخانه', category: 'health', date: daysAgo(20), note: 'دارو و ویتامین' },
+      { id: genId(), type: 'expense', amount: 4000000, title: 'سینما و رستوران', category: 'fun', date: daysAgo(8), note: 'تفریح آخر هفته' },
+      { id: genId(), type: 'expense', amount: 12000000, title: 'اجاره خانه', category: 'rent', date: daysAgo(3), note: 'اجاره بهمن' },
+      { id: genId(), type: 'income', amount: 8000000, title: 'هدیه عیدی', category: 'gift', date: daysAgo(25), note: '' },
+      { id: genId(), type: 'expense', amount: 3500000, title: 'دوره آموزشی', category: 'education', date: daysAgo(12), note: 'دوره برنامه‌نویسی' },
+      { id: genId(), type: 'expense', amount: 6000000, title: 'خرید لپ‌تاپ', category: 'shopping', date: daysAgo(30), note: 'لپ‌تاپ کاری' }
+    ];
+
+    debts = [
+      { id: genId(), type: 'debt', amount: 5000000, title: 'قرض از برادر', person: 'علی احمدی', date: daysAgo(10), dueDate: daysAgo(-20), note: 'برای خرید لپ‌تاپ', completed: false },
+      { id: genId(), type: 'credit', amount: 2000000, title: 'قرض به دوست', person: 'محمد رضایی', date: daysAgo(15), dueDate: daysAgo(-5), note: 'قرض کوتاه مدت', completed: false }
+    ];
+
+    budgets = [
+      { id: genId(), type: 'category', category: 'food', amount: 10000000, period: 'monthly', alertThreshold: 70, rollover: false, createdAt: new Date().toISOString() },
+      { id: genId(), type: 'category', category: 'transport', amount: 5000000, period: 'monthly', alertThreshold: 70, rollover: false, createdAt: new Date().toISOString() },
+      { id: genId(), type: 'category', category: 'fun', amount: 3000000, period: 'monthly', alertThreshold: 80, rollover: false, createdAt: new Date().toISOString() }
+    ];
+
+    settings.hasSeenWelcome = true;
+    saveData();
+    renderAll();
+    notify('✅ داده‌های نمونه با موفقیت بارگذاری شد');
+  }
+
+  // ============ EXPORT/IMPORT ============
+  function exportData() {
+    const data = {
+      transactions,
+      categories,
+      budgets,
+      debts,
+      settings,
+      exportDate: new Date().toISOString(),
+      version: '3.0'
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `poolyar-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    notify('📤 فایل پشتیبان ذخیره شد');
+  }
+
+  function importData() {
+    const input = document.getElementById('fileInput');
+    input.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          
+          if (confirm('آیا از بازیابی داده‌ها مطمئن هستید؟ این عمل داده‌های فعلی را جایگزین می‌کند.')) {
+            transactions = data.transactions || [];
+            categories = data.categories || { ...defaultCategories };
+            budgets = data.budgets || [];
+            debts = data.debts || [];
+            settings = data.settings || settings;
+            
+            saveData();
+            renderAll();
+            notify('✅ داده‌ها با موفقیت بازیابی شد');
+          }
+        } catch (err) {
+          notify('❌ خطا در خواندن فایل');
+          console.error(err);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  function clearAllData() {
+    if (!confirm('⚠️ آیا از پاک کردن همه داده‌ها مطمئن هستید؟ این عمل قابل بازگشت نیست!')) return;
+    if (!confirm('❗ آخرین هشدار: تمام تراکنش‌ها، بودجه‌ها و بدهی‌ها حذف خواهند شد!')) return;
+    
+    transactions = [];
+    budgets = [];
+    debts = [];
+    categories = { ...defaultCategories };
+    settings = { currency: 'تومان', language: 'fa', hasSeenWelcome: false };
+    
+    saveData();
+    renderAll();
+    notify('🗑️ همه داده‌ها پاک شد');
   }
 
   // ============ INIT ============
   function init() {
     loadData();
-    setupWindowControls();
     renderAll();
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', e => {
-      if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'i') {
-          e.preventDefault();
-          openModal('income');
-        } else if (e.key === 'e') {
-          e.preventDefault();
-          openModal('expense');
-        } else if (e.key === 'k') {
-          e.preventDefault();
-          openCalculator();
-        }
-      }
-    });
   }
 
-  // Start app
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  init();
 </script>
+
 </body>
 </html>
