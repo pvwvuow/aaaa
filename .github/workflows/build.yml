@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
     
     steps:
     - uses: actions/checkout@v4
@@ -23,8 +25,21 @@ jobs:
     - name: Build Portable EXE
       run: npx electron-builder --win portable
     
-    - name: Upload Portable EXE
-      uses: actions/upload-artifact@v4
+    - name: Get version
+      id: version
+      run: echo "VERSION=$(node -p "require('./package.json').version")" >> $env:GITHUB_OUTPUT
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
       with:
-        name: Poolyar-Portable
-        path: dist/*.exe
+        tag_name: v${{ steps.version.outputs.VERSION }}
+        name: پول‌یار نسخه ${{ steps.version.outputs.VERSION }}
+        body: |
+          ## 📥 دانلود
+          فایل exe را از پایین دانلود کنید.
+          
+          ## 💻 نصب
+          فقط فایل را اجرا کنید - نیاز به نصب ندارد!
+        files: dist/*.exe
+        draft: false
+        prerelease: false
